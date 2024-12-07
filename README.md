@@ -99,3 +99,28 @@ Strategies for image colorization have evolved over the years and feature a dive
 | [Automatic Controllable Colorization via Imagination](https://arxiv.org/abs/2404.05661) | 2024 | Cong et al. | No | https://github.com/xy-cong/imagine-colorization |
 | [Control Color: Multimodal Diffusion-based Interactive Image Colorization](https://arxiv.org/abs/2402.10855) | 2024 | Liang et al. | Yes | None |
 | [Versatile Vision Foundation Model for Image and Video Colorization](https://dl.acm.org/doi/abs/10.1145/3641519.3657509) | 2024 | Bozic et al. | Yes | None |
+
+## Bias Metrics
+
+Various conceptualizations of bias have emerged in the image colorization space. Broadly, they include absolute metrics based on geometry, perceptual metrics based on non-uniformities in human color vision, and semantic metrics measuring how well the colorization preserves the semantic meaning of the image. Metrics can further be divided into those requiring a reference image and those that are automatic based on deep learning methods as explained in [Comparison of Metrics for Colorized Image Quality
+Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20Colorized%20Image%20Quality%20Evaluation.pdf) (Žeger et al., 2022). As of December 2024, the two leading Python libraries for image quality assessment (IQA) include PyTorch Toolbox for Image Quality Assessment (PIQA) and PyTorch Image Quality (PIQ). Here, we provide a sampling of bias metrics over the years.
+
+| Metric | Year | Type | Reference |
+| - | - | - | - |
+| Mean Squared Error (MSE) | - | Absolute | Yes |
+| Mean Absolute Error (MAE) | - | Absolute | Yes |
+| Peak Signal-to-Noise Ratio (PSNR) | - | Absolute | Yes |
+| Kullback–Leibler Divergence (KL) | 1951 | Absolute | Yes |
+| Earth Mover’s Distance (EMD) | 1989 | Absolute | Yes |
+| CIEDE2000 | 2001 | Perceptual | Yes |
+| Universal Image Quality Index (UIQI) | 2002 | Absolute | Yes |
+| Structural Similarity Index Measure (SSIM) | 2004 | Perceptual | Yes |
+| Visual Information Fidelity (VIF) | 2006 | Absolute | Yes |
+| Feature Similarity Index Measure (FSIM) | 2011 | Perceptual | Yes |
+| Naturalness Image Quality Evaluator (NIQE) | 2012 | Perceptual | No |
+| Blind/Referenceless Image Spatial Quality Evaluator (BRISQUE) | 2012 | Perceptual | No |
+| Gradient Magnitude Similarity Deviation (GMSD) | 2013 | Absolute | Yes |
+| Learned Perceptual Image Patch Similarity (LPIPS) | 2018 | Semantic | Yes |
+| Neural Image Assessment (NIMA) | 2018 | Perceptual | No |
+| Deep Bilinear Convolutional Neural Network (DBCNN) | 2020 | Perceptual | No |
+| Multi-Scale Image Quality Transformer (MUSIQ) | 2021 | Perceptual | No |
