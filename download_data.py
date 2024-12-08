@@ -2,6 +2,7 @@ import gdown
 import re
 import os
 import zipfile
+import pandas as pd
 
 # Define URLs.
 train_label = "https://drive.google.com/file/d/1i1L3Yqwaio7YSOCj7ftgk8ZZchPG7dmH/view"
@@ -41,6 +42,13 @@ def unzip_and_cleanup(zip_path, extract_to):
     except Exception as e:
         print(f"Error {e} occurred while unzipping file {zip_path}.")
 
+# Create label CSV file that merges training and validation labels.
+def combine_labels(train_label_path, val_label_path):
+    train_label = pd.read_csv(train_label_path)
+    val_label = pd.read_csv(val_label_path)
+    combined_label = pd.concat([train_label, val_label], ignore_index=True)
+    combined_label.to_csv("data/combined _label.csv", index=False)
+
 # Get data.
 if __name__ == "__main__":
     data_folder = create_data_folder()
@@ -51,4 +59,5 @@ if __name__ == "__main__":
     download_from_drive(val_label, val_label_path)
     download_from_drive(train_val_img, train_val_img_path)
     unzip_and_cleanup(train_val_img_path, data_folder)
+    combine_labels(train_label_path, val_label_path)
     print("Data was successfully downloaded and unzipped.")
