@@ -47,7 +47,7 @@ def combine_labels(train_label_path, val_label_path):
     train_label = pd.read_csv(train_label_path)
     val_label = pd.read_csv(val_label_path)
     combined_label = pd.concat([train_label, val_label], ignore_index=True)
-    combined_label.to_csv("data/combined _label.csv", index=False)
+    combined_label.to_csv("data/combined_label.csv", index=False)
 
 # Get data.
 if __name__ == "__main__":
