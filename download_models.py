@@ -7,6 +7,17 @@ models = [
     {
         "name": "2001 Reinhard",
         "repo": "https://github.com/chia56028/Color-Transfer-between-Images",
+        "language": "python",
+    },
+    {
+        "name": "2016 Zhang",
+        "repo": "https://github.com/richzhang/colorization",
+        "language": "python",
+    },
+    {
+        "name": "2017 Zhang",
+        "repo": "https://github.com/richzhang/colorization",
+        "language": "python",
     },
 ]
 
@@ -32,18 +43,17 @@ def set_up():
             if not os.path.exists(model_path):
                 subprocess.run(["git", "clone", model["repo"], model_path], check=True)
 
-            # Create a virtual environment.
-            env_path = os.path.join(model_path, model["safe_name"])
-            if not os.path.exists(env_path):
-                subprocess.run([sys.executable, "-m", "venv", env_path], check=True)
-
-            # Install dependencies.
-            requirements_file = os.path.join("requirements", model["safe_name"] + ".txt")
-            if os.path.exists(requirements_file):
-                pip_path = os.path.join(env_path, "bin", "pip")
-                subprocess.run([pip_path, "install", "-r", requirements_file], check=True)
-            else:
-                raise ValueError(f"There is no requirements.txt for {model['name']}.")
+            # Create a virtual environment and install dependencies.
+            if model["language"] == "python":
+                env_path = os.path.join(model_path, model["safe_name"])
+                if not os.path.exists(env_path):
+                    subprocess.run([sys.executable, "-m", "venv", env_path], check=True)
+                requirements_file = os.path.join("requirements", model["safe_name"] + ".txt")
+                if os.path.exists(requirements_file):
+                    pip_path = os.path.join(env_path, "bin", "pip")
+                    subprocess.run([pip_path, "install", "-r", requirements_file], check=True)
+                else:
+                    raise ValueError(f"There is no requirements.txt for {model['name']}.")
         
         except subprocess.CalledProcessError as e:
             print(f"Error {e} occurred during setup for {model['name']}.")
