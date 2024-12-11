@@ -62,7 +62,7 @@ Strategies for image colorization have evolved over the years and feature a dive
 | [Awesome Image Colorization](https://github.com/MarkMoHR/Awesome-Image-Colorization) | 2018 | Mo et al. | Yes | https://github.com/MarkMoHR/Awesome-Image-Colorization | 
 | [Coloring with Words: Guiding Image Colorization Through Text-based Palette Generation](https://arxiv.org/pdf/1804.04128) | 2018 | Bahng et al. | Yes | https://github.com/awesome-davian/Text2Colors/ |
 | [Pixelated Semantic Colorization](https://arxiv.org/abs/1901.10889) | 2019 | Zhao et al. | No | None |
-| [Fully Automatic Video Colorization with Self-Regularization and Diversity]([https://arxiv.org/abs/1901.10889](https://arxiv.org/abs/1908.01311)) | 2019 | Lei & Chen | No | [None](https://github.com/ChenyangLEI/automatic-video-colorization) |
+| [Fully Automatic Video Colorization with Self-Regularization and Diversity](https://arxiv.org/pdf/1908.01311) | 2019 | Lei & Chen | No | https://github.com/ChenyangLEI/automatic-video-colorization |
 | [A Superpixel-Based Variational Model for Image Colorization](https://ieeexplore.ieee.org/abstract/document/8676327) | 2019 | Fang et al. | Yes | None |
 | [Adversarial Colorization Of Icons Based On Structure And Color Conditions](https://arxiv.org/pdf/1910.05253) | 2019 | Sun et al. | Yes | https://github.com/jxcodetw/Adversarial-Colorization-Of-Icons-Based-On-Structure-And-Color-Conditions |
 | [Automatic Example-Based Image Colorization Using Location-Aware Cross-Scale Matching](https://ieeexplore.ieee.org/abstract/document/8699109) | 2019 | Li et al. | Yes | None |
