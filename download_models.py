@@ -7,17 +7,22 @@ models = [
     {
         "name": "2001 Reinhard",
         "repo": "https://github.com/chia56028/Color-Transfer-between-Images",
-        "language": "python",
+        "setup": "venv",
     },
     {
         "name": "2016 Zhang",
         "repo": "https://github.com/richzhang/colorization",
-        "language": "python",
+        "setup": "venv",
     },
     {
         "name": "2017 Zhang",
         "repo": "https://github.com/richzhang/colorization",
-        "language": "python",
+        "setup": "venv",
+    },
+    {
+        "name": "2023 Kang",
+        "repo": "https://github.com/piddnad/DDColor",
+        "setup": "venv",
     },
 ]
 
@@ -44,7 +49,7 @@ def set_up():
                 subprocess.run(["git", "clone", model["repo"], model_path], check=True)
 
             # Create a virtual environment and install dependencies.
-            if model["language"] == "python":
+            if model["setup"] == "venv":
                 env_path = os.path.join(model_path, model["safe_name"])
                 if not os.path.exists(env_path):
                     subprocess.run([sys.executable, "-m", "venv", env_path], check=True)
