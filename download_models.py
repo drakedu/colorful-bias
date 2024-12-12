@@ -20,6 +20,11 @@ models = [
         "setup": "venv",
     },
     {
+        "name": "2018 Antic",
+        "repo": "https://github.com/jantic/DeOldify",
+        "setup": "venv",
+    },
+    {
         "name": "2023 Kang",
         "repo": "https://github.com/piddnad/DDColor",
         "setup": "venv",
