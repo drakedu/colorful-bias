@@ -126,6 +126,18 @@ Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20
 | Deep Bilinear Convolutional Neural Network (DBCNN) | 2020 | Perceptual | No |
 | Multi-Scale Image Quality Transformer (MUSIQ) | 2021 | Perceptual | No |
 
+## Setup and Reproduction
+
+This project assumes Python 3.11 or later. 
+1. ```git clone https://github.com/drakedu/colorful-bias```
+2. ```pip install requirements.txt```
+3. ```python download_data.py```
+4. ```python sample_data.py```
+5. ```python download_models.py```
+6. ```python run_colorization.py```
+7. ```python compute_metrics.py```
+8. ```python analyze_colorization.py```
+
 ## Reflection
 
 Analyzing how colorful bias has changed over time brings us closer to understanding how we might proactively create systems and algorithms to combat it. From diversity in image datasets, knowledge of historical and cultural context, and conceptions of palatable color schemes, deconstructing exact sources of bias remains an open challenge as detailed in [The Limits of AI Image Colorization: A Companion](https://samgoree.github.io/2021/04/21/colorization_companion.html) (Goree, 2021). While new formulations for bias metrics such as those introduced in [Bias in Automated Image Colorization: Metrics and Error Types](https://arxiv.org/pdf/2202.08143) (Stapel et al., 2022) further complicate this endeavor, the increased focus on these normative questions in the space of image colorization in recent years brings hope for fairer and more inclusive technological progress.
