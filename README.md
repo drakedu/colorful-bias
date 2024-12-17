@@ -128,7 +128,7 @@ Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20
 
 ## Setup and Reproduction
 
-This project assumes Python 3.11 or later. 
+This project uses Python 3.11.
 1. ```git clone https://github.com/drakedu/colorful-bias```
 2. ```pip install requirements.txt```
 3. ```python download_data.py```
