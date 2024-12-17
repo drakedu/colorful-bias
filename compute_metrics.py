@@ -38,8 +38,8 @@ def format_model_name(model_name):
 
 fr_metrics = [
     ("TOPIQ (FR)", "topiq_fr"),
-    # ("AHIQ", "ahiq"),
-    # ("PieAPP", "pieapp"),
+    ("AHIQ", "ahiq"),
+    ("PieAPP", "pieapp"),
     ("LPIPS", "lpips"),
     ("DISTS", "dists"),
     ("WaDIQaM (FR)", "wadiqam_fr"),
