@@ -138,7 +138,7 @@ for method_name, model_name in metrics_list:
     with open(output_csv, 'a', newline='') as f:
         writer = csv.writer(f)
         if write_header:
-            writer.writerow(["Dataset", "Number", "Age", "Gender", "Race", "Model", "Score", "Metric"])
+            writer.writerow(["Dataset", "Number", "Age", "Gender", "Race", "Model", "Score", "Metric", "Lower Better"])
 
         # Loop through each of the 5 model directories.
         for model_dir_name in os.listdir(colorized_root):
@@ -189,7 +189,18 @@ for method_name, model_name in metrics_list:
                     if torch.is_tensor(score):
                         score = score.item()
 
-                    writer.writerow([dataset, number_str, age, gender, race, formatted_model, score, method_name])
+                    # Write row.
+                    writer.writerow([
+                        dataset,
+                        number_str,
+                        age,
+                        gender,
+                        race,
+                        formatted_model,
+                        score,
+                        method_name,
+                        iqa_metric.lower_better
+                    ])
                     existing_entries.add(key)
 
                     # Increment count for this session.
