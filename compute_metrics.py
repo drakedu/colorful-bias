@@ -2,6 +2,7 @@ import os
 import csv
 import pyiqa
 import torch
+import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -37,8 +38,8 @@ def format_model_name(model_name):
 
 fr_metrics = [
     ("TOPIQ (FR)", "topiq_fr"),
-    ("AHIQ", "ahiq"),
-    ("PieAPP", "pieapp"),
+    # ("AHIQ", "ahiq"),
+    # ("PieAPP", "pieapp"),
     ("LPIPS", "lpips"),
     ("DISTS", "dists"),
     ("WaDIQaM (FR)", "wadiqam_fr"),
@@ -88,6 +89,9 @@ colorized_root = 'data/colorized'
 results_dir = 'results/compute_metrics'
 os.makedirs(results_dir, exist_ok=True)
 
+# There are 5 models and 126 demographic groups with 22 images each.
+total_images = 5 * 126 * 22
+
 for method_name, model_name in metrics_list:
     iqa_metric = pyiqa.create_metric(model_name, device=device)
 
@@ -117,6 +121,18 @@ for method_name, model_name in metrics_list:
                         model_val = row[model_idx]
                         existing_entries.add((dataset_val, number_val, model_val))
 
+    # Count how many images have already been processed.
+    already_processed_images = len(existing_entries)
+    total_images_to_process_now = total_images - already_processed_images
+
+    # Start fresh for this run.
+    processed_images = 0
+    metric_start_time = time.time()
+
+    if total_images_to_process_now <= 0:
+        print(f"{method_name} has already been processed.")
+        continue
+
     write_header = not os.path.exists(output_csv)
 
     with open(output_csv, 'a', newline='') as f:
@@ -124,6 +140,7 @@ for method_name, model_name in metrics_list:
         if write_header:
             writer.writerow(["Dataset", "Number", "Age", "Gender", "Race", "Model", "Score", "Metric"])
 
+        # Loop through each of the 5 model directories.
         for model_dir_name in os.listdir(colorized_root):
             if model_dir_name.startswith('.'):
                 continue
@@ -133,6 +150,7 @@ for method_name, model_name in metrics_list:
 
             formatted_model = format_model_name(model_dir_name)
 
+            # Loop through each of the 126 demographic folders.
             for demographic_folder in os.listdir(model_dir):
                 if demographic_folder.startswith('.'):
                     continue
@@ -142,6 +160,7 @@ for method_name, model_name in metrics_list:
 
                 gender, race, age = decode_group(demographic_folder)
 
+                # Process each image in the demographic folder.
                 for img_name in os.listdir(demo_dir):
                     if img_name.startswith('.'):
                         continue
@@ -155,8 +174,10 @@ for method_name, model_name in metrics_list:
 
                     key = (dataset, number_str, formatted_model)
                     if key in existing_entries:
+                        # If it was already processed in a previous run, skip.
                         continue
 
+                    # Compute IQA score for this image.
                     if is_fr:
                         ref_img_path = os.path.join('data', dataset, f"{number_str}.jpg")
                         if not os.path.exists(ref_img_path):
@@ -170,6 +191,14 @@ for method_name, model_name in metrics_list:
 
                     writer.writerow([dataset, number_str, age, gender, race, formatted_model, score, method_name])
                     existing_entries.add(key)
-            
-            # After processing all images for this model, print the statement.
-            print(f"{method_name} on {model_dir_name} completed.")
+
+                    # Increment count for this session.
+                    processed_images += 1
+
+                    # Estimate remaining time based on this session.
+                    elapsed_time = time.time() - metric_start_time
+                    avg_time_per_image = elapsed_time / processed_images
+                    remaining_images = total_images_to_process_now - processed_images
+                    estimated_remaining_time = avg_time_per_image * remaining_images / 60
+
+                    print(f"{method_name} has processed {already_processed_images + processed_images}/{total_images} images with {estimated_remaining_time:.2f} minutes remaining.")
