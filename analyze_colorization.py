@@ -485,16 +485,14 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         F_val = wres.loc[0, "F"]
         p_val = wres.loc[0, "p-unc"]
 
-        df_between = ddof1
-        df_within = ddof2
-
         row = {
             "Factor": factor,
             "Groups": ",".join(filtered_groups.keys()),
-            "df_between": df_between,
-            "df_within": df_within,
+            "Test": "Welch_ANOVA",
+            "df_between": ddof1,
+            "df_within": ddof2,
             "F": F_val,
-            "p-value": p_val
+            "p-value": p_val,
         }
         for i, (gname, st) in enumerate(stats.items(), start=1):
             row[f"GroupName_{i}"] = gname
@@ -534,13 +532,21 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         p_val = model_row["p-unc"].values[0]
         F_val = model_row["F"].values[0]
         ddof1 = model_row["DF"].values[0]
+        
+        # Add partial eta-squared (np2) for effect size if available.
+        if "np2" in model_row.columns:
+            np2 = model_row["np2"].values[0]
+        else:
+            np2 = np.nan
 
         row = {
             "Factor": factor,
             "Groups": ",".join(models),
+            "Test": "RM_ANOVA",
             "ddof1": ddof1,
             "F": F_val,
-            "p-value": p_val
+            "p-value": p_val,
+            "partial_eta_squared": np2
         }
 
         for i, (gname, st) in enumerate(stats.items(), start=1):
@@ -580,7 +586,7 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         if len(stats) < 2:
             return None
 
-        # Test homogeneity of variances for between-subject factor groups at each model level
+        # Test homogeneity of variances for between-subject factor groups at each model level.
         homogeneity_violated = False
         for m in models:
             model_data = [df_clean[(df_clean["Model"] == m) & (df_clean[between_factor] == bg)]["Score"].dropna().values for bg in between_groups]
@@ -591,34 +597,53 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
                     break
 
         # Run mixed_anova.
-        res = pg.mixed_anova(dv="Score", within="Model", correction='none', between=between_factor, subject="SubjectID", data=df_clean)
+        res = pg.mixed_anova(dv="Score", within="Model", correction='none',
+                             between=between_factor, subject="SubjectID", data=df_clean)
         if res.empty:
             return None
 
+        # Extract main effects and interaction.
+        model_row = res[res["Source"] == "Model"]
+        between_row = res[res["Source"] == between_factor]
         interaction_name = f"Model*{between_factor}"
         interaction_row = res[res["Source"] == interaction_name]
 
-        if interaction_row.empty:
-            interaction_data = {}
-        else:
-            F_val = interaction_row["F"].values[0]
-            p_val = interaction_row["p-unc"].values[0]
-            df_interaction = interaction_row["DF"].values[0]
-            interaction_data = {
-                "Interaction": interaction_name,
-                "F_interaction": F_val,
-                "p_interaction": p_val,
-                "DF_interaction": df_interaction
-            }
-
+        # Initialize dictionary.
         row = {
             "Factor": factor,
             "Within": "Model",
             "Between": between_factor,
+            "Test": "Mixed_ANOVA",
             "Homogeneity_Violated": homogeneity_violated
         }
-        row.update(interaction_data)
 
+        def add_effect_info(effect_row, prefix):
+            # Adds F, p-value, and effect sizes (np2, ng2) if available.
+            if not effect_row.empty:
+                row[f"F_{prefix}"] = effect_row["F"].values[0]
+                row[f"p_{prefix}"] = effect_row["p-unc"].values[0]
+                if "np2" in effect_row.columns:
+                    row[f"partial_eta_squared_{prefix}"] = effect_row["np2"].values[0]
+                else:
+                    row[f"partial_eta_squared_{prefix}"] = np.nan
+                
+                if "ng2" in effect_row.columns:
+                    row[f"generalized_eta_squared_{prefix}"] = effect_row["ng2"].values[0]
+                else:
+                    row[f"generalized_eta_squared_{prefix}"] = np.nan
+
+        # Add model effect.
+        add_effect_info(model_row, "Model")
+
+        # Add between-subject effect.
+        add_effect_info(between_row, between_factor)
+
+        # Add interaction effect.
+        if not interaction_row.empty:
+            row["Interaction"] = interaction_name
+            add_effect_info(interaction_row, "Interaction")
+
+        # Add group-level information.
         idx = 1
         for k, st in stats.items():
             row[f"GroupName_{idx}"] = k
