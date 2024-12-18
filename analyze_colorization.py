@@ -5,7 +5,7 @@ import joypy
 from itertools import chain, combinations
 import seaborn as sns
 import numpy as np
-from scipy.stats import ttest_ind, shapiro, t, mannwhitneyu
+from scipy.stats import ttest_ind, shapiro, t, mannwhitneyu, f_oneway, levene
 
 # Encode a row into a plot label based on the subset of columns included.
 def encode_attribute(row, subset):
@@ -425,6 +425,150 @@ def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
         if results:
             pd.DataFrame(results).to_csv(out_path, index=False)
 
+def run_anovas_for_metric(df_metric, metric, analysis_dir):
+    metric_dir = os.path.join(analysis_dir, metric)
+    anova_dir = os.path.join(metric_dir, "ANOVA")
+    os.makedirs(anova_dir, exist_ok=True)
+
+    def group_stats_and_checks(groups):
+        stats = {}
+        for gname, scores in groups.items():
+            arr = np.array(scores)
+            n = len(arr)
+            mean = np.mean(arr) if n > 0 else np.nan
+            std = np.std(arr, ddof=1) if n > 1 else np.nan
+            if n >= 3:
+                w_stat, p_val = shapiro(arr)
+                normal = p_val > 0.05
+            else:
+                p_val = np.nan
+                normal = False
+            stats[gname] = {
+                "N": n,
+                "Mean": mean,
+                "Std": std,
+                "Shapiro_p": p_val,
+                "Normal": normal
+            }
+        return stats
+
+    def perform_anova(groups, factor):
+        if len(groups) < 2:
+            return None
+        
+        # Filter out groups with fewer than 2 observations.
+        filtered_groups = {g: arr for g, arr in groups.items() if len(arr) >= 2}
+        if len(filtered_groups) < 2:
+            return None
+
+        stats = group_stats_and_checks(filtered_groups)
+        if len(stats) < 2:
+            return None
+
+        # Perform Levene’s test.
+        group_arrays = list(filtered_groups.values())
+        if all(len(g) > 1 for g in group_arrays):
+            lev_stat, lev_p = levene(*group_arrays)
+        else:
+            lev_p = np.nan
+
+        # Perform ANOVA.
+        f_stat, p_val = f_oneway(*group_arrays)
+
+        all_scores = np.concatenate(group_arrays)
+        total_n = len(all_scores)
+        k = len(filtered_groups)
+        df_between = k - 1
+        df_within = total_n - k
+
+        row = {
+            "Factor": factor,
+            "Groups": ",".join(filtered_groups.keys()),
+            "df_between": df_between,
+            "df_within": df_within,
+            "F": f_stat,
+            "p-value": p_val,
+            "Levene_p": lev_p
+        }
+        for i, (gname, st) in enumerate(stats.items(), start=1):
+            row[f"GroupName_{i}"] = gname
+            row[f"N_{i}"] = st["N"]
+            row[f"Mean_{i}"] = st["Mean"]
+            row[f"Std_{i}"] = st["Std"]
+            row[f"Shapiro_p_{i}"] = st["Shapiro_p"]
+            row[f"Normal_{i}"] = st["Normal"]
+        return row
+
+    # 1. Run ANOVA overall by model.
+    overall_path = os.path.join(anova_dir, "overall.csv")
+    if not os.path.exists(overall_path):
+        model_groups = {}
+        for model_val in df_metric["Model"].unique():
+            model_groups[model_val] = df_metric[df_metric["Model"] == model_val]["Score"].values
+        overall_res = perform_anova(model_groups, factor="Model")
+        if overall_res is not None:
+            pd.DataFrame([overall_res]).to_csv(overall_path, index=False)
+
+    # 2. Run ANOVA for each model by race and age.
+    for model_val in df_metric["Model"].unique():
+        model_subset = df_metric[df_metric["Model"] == model_val]
+        model_anova_dir = os.path.join(anova_dir, model_val)
+        os.makedirs(model_anova_dir, exist_ok=True)
+
+        race_path = os.path.join(model_anova_dir, "race.csv")
+        if not os.path.exists(race_path):
+            race_groups = {}
+            for r_val in model_subset["Race"].unique():
+                race_groups[r_val] = model_subset[model_subset["Race"] == r_val]["Score"].values
+            race_res = perform_anova(race_groups, factor="Race")
+            if race_res is not None:
+                pd.DataFrame([race_res]).to_csv(race_path, index=False)
+
+        age_path = os.path.join(model_anova_dir, "age.csv")
+        if not os.path.exists(age_path):
+            age_groups = {}
+            for a_val in model_subset["Age"].unique():
+                age_groups[a_val] = model_subset[model_subset["Age"] == a_val]["Score"].values
+            age_res = perform_anova(age_groups, factor="Age")
+            if age_res is not None:
+                pd.DataFrame([age_res]).to_csv(age_path, index=False)
+
+    # 3. Run ANOVA by model for each subsets of data: each non-white race/ethnicity and all non-white images combined.
+    nonwhite_path = os.path.join(anova_dir, "race.csv")
+    # If file exists, skip.
+    if not os.path.exists(nonwhite_path):
+        all_races = df_metric["Race"].unique()
+        nonwhite_races = [r for r in all_races if r.lower() != "white"]
+        results_nonwhite = []
+
+        # Get nonwhite combined.
+        nonwhite_subset = df_metric[~df_metric["Race"].str.lower().str.contains("white")]
+        if len(nonwhite_subset) > 0:
+            nonwhite_groups = {}
+            for model_val in nonwhite_subset["Model"].unique():
+                nonwhite_groups[model_val] = nonwhite_subset[nonwhite_subset["Model"] == model_val]["Score"].values
+            res_nonwhite = perform_anova(nonwhite_groups, factor="Model")
+            if res_nonwhite is not None:
+                # Indicate which subset we are testing.
+                res_nonwhite["Subset"] = "Non-White"
+                results_nonwhite.append(res_nonwhite)
+
+        # Loop over each nonwhite race.
+        for nr in nonwhite_races:
+            nr_subset = df_metric[df_metric["Race"] == nr]
+            nr_groups = {}
+            for model_val in nr_subset["Model"].unique():
+                nr_groups[model_val] = nr_subset[nr_subset["Model"] == model_val]["Score"].values
+            res_nr = perform_anova(nr_groups, factor="Model")
+            if res_nr is not None:
+                # Indicate which subset or particular nonwhite race.
+                res_nr["Subset"] = nr
+                results_nonwhite.append(res_nr)
+
+        # Save all nonwhite results into one CSV.
+        if results_nonwhite:
+            pd.DataFrame(results_nonwhite).to_csv(nonwhite_path, index=False)
+
 # Define main script.
 if __name__ == "__main__":
     metric_dir = "results/compute_metrics"
@@ -449,3 +593,4 @@ if __name__ == "__main__":
         create_barcharts(df, metric, analysis_dir)
         run_t_tests_for_metric(df, metric, analysis_dir)
         run_mannwhitney_for_metric(df, metric, analysis_dir)
+        run_anovas_for_metric(df, metric, analysis_dir)
