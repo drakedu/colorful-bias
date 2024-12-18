@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import joypy
 from itertools import chain, combinations
 import seaborn as sns
+import numpy as np
+from scipy.stats import ttest_ind, shapiro, t
 
 # Encode a row into a plot label based on the subset of columns included.
 def encode_attribute(row, subset):
@@ -203,6 +205,133 @@ def create_barcharts(df_metric, metric, analysis_dir):
         plt.savefig(out_file)
         plt.close()
 
+def run_t_tests_for_metric(df_metric, metric, analysis_dir):
+    metric_dir = os.path.join(analysis_dir, metric)
+    os.makedirs(metric_dir, exist_ok=True)
+    t_test_dir = os.path.join(metric_dir, "t_tests")
+    os.makedirs(t_test_dir, exist_ok=True)
+
+    models = df_metric["Model"].unique()
+
+    def check_normality(x):
+        x = np.array(x)
+        if len(x) < 3:
+            return np.nan, False
+        w_stat, p_val = shapiro(x)
+        normal = (p_val > 0.05)
+        return p_val, normal
+
+    def welch_t_confidence_interval(mean_diff, var1, var2, n1, n2, alpha=0.05):
+        se_diff = np.sqrt(var1/n1 + var2/n2)
+        # Handle degenerate case.
+        if se_diff == 0:
+            return mean_diff, mean_diff, se_diff
+        # COmpute Welch-Satterthwaite degrees of freedom.
+        df = ((var1/n1 + var2/n2)**2) / ((var1**2 / (n1**2*(n1-1))) + (var2**2 / (n2**2*(n2-1))))
+        t_crit = t.ppf(1 - alpha/2, df)
+        ci_lower = mean_diff - t_crit * se_diff
+        ci_upper = mean_diff + t_crit * se_diff
+        return ci_lower, ci_upper, se_diff
+
+    def do_comparison(g1_scores, g2_scores, comparison_name, group1_name, group2_name):
+        n1 = len(g1_scores)
+        n2 = len(g2_scores)
+        if n1 < 2 or n2 < 2:
+            # We have insuficient data.
+            return None
+        
+        # Check normality.
+        shapiro_p1, normal1 = check_normality(g1_scores)
+        shapiro_p2, normal2 = check_normality(g2_scores)
+
+        # Conduct Welch t-test.
+        t_stat, p_val = ttest_ind(g1_scores, g2_scores, equal_var=False)
+        
+        mean1 = np.mean(g1_scores)
+        mean2 = np.mean(g2_scores)
+        mean_diff = mean1 - mean2
+        var1 = np.var(g1_scores, ddof=1)
+        var2 = np.var(g2_scores, ddof=1)
+
+        ci_lower, ci_upper, se_diff = welch_t_confidence_interval(mean_diff, var1, var2, n1, n2)
+
+        return {
+            "Comparison": comparison_name,
+            "Assumptions": normal1 and normal2,
+            "Group1": group1_name,
+            "Group2": group2_name,
+            "N1": n1,
+            "N2": n2,
+            "Mean1": mean1,
+            "Mean2": mean2,
+            "Mean_Diff": mean_diff,
+            "SE_Mean_Diff": se_diff,
+            "t-stat": t_stat,
+            "p-value": p_val,
+            "CI_Lower": ci_lower,
+            "CI_Upper": ci_upper,
+            "Shapiro_pval_Group1": shapiro_p1,
+            "Group1_Normal": normal1,
+            "Shapiro_pval_Group2": shapiro_p2,
+            "Group2_Normal": normal2,
+        }
+
+    for model in models:
+        model_df = df_metric[df_metric["Model"] == model]
+        if model_df.empty:
+            continue
+
+        out_path = os.path.join(t_test_dir, f"{model}.csv")
+
+        # Skip if file already exists.
+        if os.path.exists(out_path):
+            continue
+
+        results = []
+
+        # 1. Check male versus female.
+        male_scores = model_df[model_df["Gender"] == "Male"]["Score"]
+        female_scores = model_df[model_df["Gender"] == "Female"]["Score"]
+        if not male_scores.empty and not female_scores.empty:
+            res = do_comparison(male_scores, female_scores, "Male vs Female", "Male", "Female")
+            if res is not None:
+                results.append(res)
+
+        # 2. Check each age versus the test.
+        unique_ages = model_df["Age"].unique()
+        for age_val in unique_ages:
+            age_scores = model_df[model_df["Age"] == age_val]["Score"]
+            rest_scores = model_df[model_df["Age"] != age_val]["Score"]
+            if not age_scores.empty and not rest_scores.empty:
+                comp_name = f"{age_val} vs Rest"
+                res = do_comparison(age_scores, rest_scores, comp_name, age_val, "Rest")
+                if res is not None:
+                    results.append(res)
+
+        # 3. Check white against each other race/ethnicity.
+        if "White" in model_df["Race"].values:
+            white_scores = model_df[model_df["Race"] == "White"]["Score"]
+            other_races = [r for r in model_df["Race"].unique() if r != "White"]
+            for orace in other_races:
+                orace_scores = model_df[model_df["Race"] == orace]["Score"]
+                if not white_scores.empty and not orace_scores.empty:
+                    comp_name = f"White vs {orace}"
+                    res = do_comparison(white_scores, orace_scores, comp_name, "White", orace)
+                    if res is not None:
+                        results.append(res)
+
+            # 4. Check white versus non-white.
+            nonwhite_scores = model_df[model_df["Race"] != "White"]["Score"]
+            if not white_scores.empty and not nonwhite_scores.empty:
+                comp_name = "White vs Non-White"
+                res = do_comparison(white_scores, nonwhite_scores, comp_name, "White", "Non-White")
+                if res is not None:
+                    results.append(res)
+
+        # Save results to CSV.
+        if results:
+            pd.DataFrame(results).to_csv(out_path, index=False)
+
 # Define main script.
 if __name__ == "__main__":
     metric_dir = "results/compute_metrics"
@@ -225,3 +354,4 @@ if __name__ == "__main__":
         create_summary_statistics(df, metric, analysis_dir)
         create_facets(df, metric, analysis_dir)
         create_barcharts(df, metric, analysis_dir)
+        run_t_tests_for_metric(df, metric, analysis_dir)
