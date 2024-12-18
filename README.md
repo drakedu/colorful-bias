@@ -1,5 +1,20 @@
 # Colorful Bias
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Literature Review](#literature-review)
+  - [Race/Ethnicity-Annotated Face Datasets](#raceethnicity-annotated-face-datasets)
+  - [Image Colorization Research](#image-colorization-research)
+  - [Bias Metrics](#bias-metrics)
+- [Setup and Reproduction](#setup-and-reproduction)
+- [Methods](#methods)
+  - [Choosing the Dataset](#choosing-the-dataset)
+  - [Sampling Data](#sampling-data)
+  - [Downloading Models](#downloading-models)
+  - [Computing Metrics](#computing-metrics)
+  - [Analyzing Colorization](#analyzing-colorization)
+- [Conclusion](#conclusion)
+
 ## Introduction
 
 In 2015, Google Photos faced widespread backlash after its [algorithms mislabeled](https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html) Black people as gorillas (Grant & Hill, 2023). Three years later, the MIT Media Lab found that facial recognition systems had [error rates](https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/) as high as 34% for darker-skinned women compared to less than 1% for lighter-skinned men (Buolamwini, 2018). From image classification to facial recognition, computer vision is infamously flawed. In this research project, I investigated how these issues of fairness manifest in the age of generative AI. In particular, I explored the robustness of generative algorithms for image colorization with respect to skin tone bias. To accomplish this, I conducted a survey of race/ethnicity-annotated face datasets, compiled seminal algorithms for image colorization over the years, researched various formulations of bias metrics, and set up a code framework with statistical tests to rigorously compare the performance of coloring procedures. Through the above work, I sought to shed light on the trend in “colorful” bias, or bias in algorithmic colorization of images containing human skin tones, as seen through algorithms over time.
@@ -159,6 +174,10 @@ While many colorization models have been proposed over the years, a sizeable pro
 ### Computing Metrics
 
 To determine quality of image recolorization, we leveraged the PyTorch Toolbox for Image Quality Assessment due to its support of a wide-range of seminal metrics and ease of use. Out of the 38 metrics supported by the library, we were able to compute 28 of them for each of the 13860 image recolorings across the 5 models, possible largely by the help of 6 additional computers in Lamont Library and the blessing of library staff. Q-Align, AHIQ, TReS, MANIQA, ILNIQE, HyperIQA, BRISQUE, NRQM, and PI were projected to take 10 days, 5 days, 4 days, 3 days, 1 day, 16 hours, 15 hours, 7 hours, and 6 hours, respectively, while FID lacked a default image dataset fallback.
+
+### Analyzing Colorization
+
+After computing metrics between ground-truth images and reconstructions, we first explored differences across demographic groups using joyplots, facets, and CI-annotated barcharts. Next, we computed summary statistics for every age-gender-race-model combination inclusive of an `All` keyword, to compute summary statistics on varying aggregations. We then conducted Welch's t-tests, checking for normality, and Mann-Whitney U tests to determine for each model whether there existed a significant difference in its reconstruction scores by gender, by age through one-versus-rest, and by race in comparing White against non-White reconstuctions as well as against each non-White category in particular. Then, through Kruskal-Wallis tests and ANOVA tests, checking normality and homogeneity of variance, we determined whether there was a significant difference in scores across models; whether for each model whether there was a significant difference in its reconstruction scores by race and by age; and whether there were significant difference in scores across models for images of each non-White race/ethnicity and for non-White reconstructions as a whole.
 
 ## Conclusion
 
