@@ -258,22 +258,22 @@ def run_t_tests_for_metric(df_metric, metric, analysis_dir):
         return {
             "Comparison": comparison_name,
             "Assumptions": normal1 and normal2,
-            "Group1": group1_name,
-            "Group2": group2_name,
-            "N1": n1,
-            "N2": n2,
-            "Mean1": mean1,
-            "Mean2": mean2,
+            "GroupName_1": group1_name,
+            "GroupName_2": group2_name,
+            "N_1": n1,
+            "N_2": n2,
+            "Mean_1": mean1,
+            "Mean_2": mean2,
             "Mean_Diff": mean_diff,
             "SE_Mean_Diff": se_diff,
             "t-stat": t_stat,
             "p-value": p_val,
             "CI_Lower": ci_lower,
             "CI_Upper": ci_upper,
-            "Shapiro_pval_Group1": shapiro_p1,
-            "Group1_Normal": normal1,
-            "Shapiro_pval_Group2": shapiro_p2,
-            "Group2_Normal": normal2,
+            "Shapiro_p_1": shapiro_p1,
+            "Normal_1": normal1,
+            "Shapiro_p_2": shapiro_p2,
+            "Normal_2": normal2,
         }
 
     for model in models:
@@ -335,8 +335,8 @@ def run_t_tests_for_metric(df_metric, metric, analysis_dir):
 def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
     metric_dir = os.path.join(analysis_dir, metric)
     os.makedirs(metric_dir, exist_ok=True)
-    t_test_dir = os.path.join(metric_dir, "mannwhitneyu_tests")
-    os.makedirs(t_test_dir, exist_ok=True)
+    mannwhitney_dir = os.path.join(metric_dir, "mannwhitneyu_tests")
+    os.makedirs(mannwhitney_dir, exist_ok=True)
 
     models = df_metric["Model"].unique()
 
@@ -358,12 +358,12 @@ def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
 
         return {
             "Comparison": comparison_name,
-            "Group1": group1_name,
-            "Group2": group2_name,
-            "N1": n1,
-            "N2": n2,
-            "Median1": median1,
-            "Median2": median2,
+            "GroupName_1": group1_name,
+            "GroupName_2": group2_name,
+            "N_1": n1,
+            "N_2": n2,
+            "Median_1": median1,
+            "Median_2": median2,
             "U-stat": U_stat,
             "p-value": p_val,
             "RankBiserialCorr": r
@@ -374,7 +374,7 @@ def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
         if model_df.empty:
             continue
 
-        out_path = os.path.join(t_test_dir, f"{model}.csv")
+        out_path = os.path.join(mannwhitney_dir, f"{model}.csv")
 
         # Skip if file already exists.
         if os.path.exists(out_path):
@@ -427,7 +427,7 @@ def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
 
 def run_anovas_for_metric(df_metric, metric, analysis_dir):
     metric_dir = os.path.join(analysis_dir, metric)
-    anova_dir = os.path.join(metric_dir, "ANOVA")
+    anova_dir = os.path.join(metric_dir, "ANOVA_tests")
     os.makedirs(anova_dir, exist_ok=True)
 
     def group_stats_and_checks(groups):
@@ -569,15 +569,10 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         if results_nonwhite:
             pd.DataFrame(results_nonwhite).to_csv(nonwhite_path, index=False)
 
-import os
-import pandas as pd
-import numpy as np
-from scipy.stats import kruskal
-
 def run_kruskal_for_metric(df_metric, metric, analysis_dir):
     metric_dir = os.path.join(analysis_dir, metric)
-    anova_dir = os.path.join(metric_dir, "kruskalwallis_test")
-    os.makedirs(anova_dir, exist_ok=True)
+    kruskal_dir = os.path.join(metric_dir, "kruskalwallis_tests")
+    os.makedirs(kruskal_dir, exist_ok=True)
 
     def group_stats_nonparametric(groups):
         stats = {}
@@ -638,7 +633,7 @@ def run_kruskal_for_metric(df_metric, metric, analysis_dir):
         return row
 
     # 1. Test overall by model.
-    overall_path = os.path.join(anova_dir, "overall.csv")
+    overall_path = os.path.join(kruskal_dir, "overall.csv")
     if not os.path.exists(overall_path):
         model_groups = {}
         for model_val in df_metric["Model"].unique():
@@ -650,10 +645,10 @@ def run_kruskal_for_metric(df_metric, metric, analysis_dir):
     # 2. Test each model by race and age.
     for model_val in df_metric["Model"].unique():
         model_subset = df_metric[df_metric["Model"] == model_val]
-        model_anova_dir = os.path.join(anova_dir, model_val)
-        os.makedirs(model_anova_dir, exist_ok=True)
+        model_kruskal_dir = os.path.join(kruskal_dir, model_val)
+        os.makedirs(model_kruskal_dir, exist_ok=True)
 
-        race_path = os.path.join(model_anova_dir, "race.csv")
+        race_path = os.path.join(model_kruskal_dir, "race.csv")
         if not os.path.exists(race_path):
             race_groups = {}
             for r_val in model_subset["Race"].unique():
@@ -662,7 +657,7 @@ def run_kruskal_for_metric(df_metric, metric, analysis_dir):
             if race_res is not None:
                 pd.DataFrame([race_res]).to_csv(race_path, index=False)
 
-        age_path = os.path.join(model_anova_dir, "age.csv")
+        age_path = os.path.join(model_kruskal_dir, "age.csv")
         if not os.path.exists(age_path):
             age_groups = {}
             for a_val in model_subset["Age"].unique():
@@ -671,8 +666,8 @@ def run_kruskal_for_metric(df_metric, metric, analysis_dir):
             if age_res is not None:
                 pd.DataFrame([age_res]).to_csv(age_path, index=False)
 
-    # 3. Run ANOVA by model for each subsets of data: each non-white race/ethnicity and all non-white images combined.
-    nonwhite_path = os.path.join(anova_dir, "race.csv")
+    # 3. Run Kruskal-Wallis by model for each subsets of data: each non-white race/ethnicity and all non-white images combined.
+    nonwhite_path = os.path.join(kruskal_dir, "race.csv")
     if not os.path.exists(nonwhite_path):
         all_races = df_metric["Race"].unique()
         nonwhite_races = [r for r in all_races if r.lower() != "white"]
