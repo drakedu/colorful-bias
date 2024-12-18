@@ -192,7 +192,7 @@ def create_barcharts(df_metric, metric, analysis_dir):
         
         # Create a simple bar chart
         plt.figure()
-        sns.barplot(data=df_metric, x=attribute, y="Score", ci=95)
+        sns.barplot(data=df_metric, x=attribute, y="Score", errorbar=('ci',95))
         
         # Add a title.
         plt.title(f"{metric} Scores by {attribute}")
@@ -227,4 +227,4 @@ if __name__ == "__main__":
         create_joyplots_for_metric(df, metric, analysis_dir)
         create_summary_statistics(df, metric, analysis_dir)
         # create_facets(df, metric, analysis_dir)
-        # create_barcharts(df, metric, analysis_dir)
+        create_barcharts(df, metric, analysis_dir)
