@@ -5,7 +5,8 @@ import joypy
 from itertools import chain, combinations
 import seaborn as sns
 import numpy as np
-from scipy.stats import ttest_ind, shapiro, t, mannwhitneyu, f_oneway, levene, kruskal
+from scipy.stats import ttest_ind, shapiro, t, mannwhitneyu, fligner
+import pingouin as pg
 
 # Encode a row into a plot label based on the subset of columns included.
 def encode_attribute(row, subset):
@@ -426,6 +427,9 @@ def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
             pd.DataFrame(results).to_csv(out_path, index=False)
 
 def run_anovas_for_metric(df_metric, metric, analysis_dir):
+    # Create SubjectID for repeated-measures and mixed-design analysis.
+    df_metric["SubjectID"] = df_metric["Dataset"].astype(str) + "_" + df_metric["Number"].astype(str)
+
     metric_dir = os.path.join(analysis_dir, metric)
     anova_dir = os.path.join(metric_dir, "ANOVA_tests")
     os.makedirs(anova_dir, exist_ok=True)
@@ -452,11 +456,11 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
             }
         return stats
 
+    # Define one-way Welch's ANOVA.
     def perform_anova(groups, factor):
         if len(groups) < 2:
             return None
-        
-        # Filter out groups with fewer than 2 observations.
+
         filtered_groups = {g: arr for g, arr in groups.items() if len(arr) >= 2}
         if len(filtered_groups) < 2:
             return None
@@ -465,30 +469,32 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         if len(stats) < 2:
             return None
 
-        # Perform Levene’s test.
-        group_arrays = list(filtered_groups.values())
-        if all(len(g) > 1 for g in group_arrays):
-            lev_stat, lev_p = levene(*group_arrays)
-        else:
-            lev_p = np.nan
+        # Prepare data for welch_anova.
+        data_list = []
+        for gname, arr in filtered_groups.items():
+            for val in arr:
+                data_list.append((gname, val))
+        df_long = pd.DataFrame(data_list, columns=["Group", "Score"])
 
-        # Perform ANOVA.
-        f_stat, p_val = f_oneway(*group_arrays)
+        wres = pg.welch_anova(dv="Score", between="Group", data=df_long)
+        if wres.empty:
+            return None
 
-        all_scores = np.concatenate(group_arrays)
-        total_n = len(all_scores)
-        k = len(filtered_groups)
-        df_between = k - 1
-        df_within = total_n - k
+        ddof1 = wres.loc[0, "ddof1"]
+        ddof2 = wres.loc[0, "ddof2"]
+        F_val = wres.loc[0, "F"]
+        p_val = wres.loc[0, "p-unc"]
+
+        df_between = ddof1
+        df_within = ddof2
 
         row = {
             "Factor": factor,
             "Groups": ",".join(filtered_groups.keys()),
             "df_between": df_between,
             "df_within": df_within,
-            "F": f_stat,
-            "p-value": p_val,
-            "Levene_p": lev_p
+            "F": F_val,
+            "p-value": p_val
         }
         for i, (gname, st) in enumerate(stats.items(), start=1):
             row[f"GroupName_{i}"] = gname
@@ -499,204 +505,168 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
             row[f"Normal_{i}"] = st["Normal"]
         return row
 
-    # 1. Run ANOVA overall by model.
-    overall_path = os.path.join(anova_dir, "overall.csv")
-    if not os.path.exists(overall_path):
-        model_groups = {}
-        for model_val in df_metric["Model"].unique():
-            model_groups[model_val] = df_metric[df_metric["Model"] == model_val]["Score"].values
-        overall_res = perform_anova(model_groups, factor="Model")
-        if overall_res is not None:
-            pd.DataFrame([overall_res]).to_csv(overall_path, index=False)
+    # Define repeated-measures ANOVA.
+    def perform_rm_anova(df_long, factor):
+        models = df_long["Model"].unique()
+        if len(models) < 2:
+            return None
 
-    # 2. Run ANOVA for each model by race and age.
+        subj_counts = df_long.groupby(["SubjectID", "Model"]).size().unstack(fill_value=0)
+        complete_subjects = subj_counts.index[subj_counts.notnull().all(axis=1)]
+        df_long = df_long[df_long["SubjectID"].isin(complete_subjects)]
+
+        if len(df_long["SubjectID"].unique()) < 2:
+            return None
+
+        groups = {m: df_long[df_long["Model"] == m]["Score"].dropna().values for m in models}
+        stats = group_stats_and_checks(groups)
+        if len(stats) < 2:
+            return None
+
+        res = pg.rm_anova(data=df_long, dv="Score", correction='none', within="Model", subject="SubjectID", detailed=True)
+        if res.empty:
+            return None
+
+        model_row = res[res["Source"] == "Model"]
+        if model_row.empty:
+            return None
+
+        p_val = model_row["p-unc"].values[0]
+        F_val = model_row["F"].values[0]
+        ddof1 = model_row["DF"].values[0]
+
+        row = {
+            "Factor": factor,
+            "Groups": ",".join(models),
+            "ddof1": ddof1,
+            "F": F_val,
+            "p-value": p_val
+        }
+
+        for i, (gname, st) in enumerate(stats.items(), start=1):
+            row[f"GroupName_{i}"] = gname
+            row[f"N_{i}"] = st["N"]
+            row[f"Mean_{i}"] = st["Mean"]
+            row[f"Std_{i}"] = st["Std"]
+            row[f"Shapiro_p_{i}"] = st["Shapiro_p"]
+            row[f"Normal_{i}"] = st["Normal"]
+        return row
+
+    # Define mixed-design ANOVA.
+    def perform_mixed_anova(df_metric, factor, between_factor, filename):
+        models = df_metric["Model"].unique()
+        if len(models) < 2:
+            return None
+
+        between_groups = df_metric[between_factor].unique()
+        if len(between_groups) < 2:
+            return None
+
+        subj_counts = df_metric.groupby(["SubjectID", "Model"]).size().unstack(fill_value=0)
+        complete_subjects = subj_counts.index[subj_counts.notnull().all(axis=1)]
+        df_clean = df_metric[df_metric["SubjectID"].isin(complete_subjects)]
+
+        if len(df_clean["SubjectID"].unique()) < 2:
+            return None
+
+        # Check normality for each combination of Model x between_group.
+        factor_groups = {}
+        for m in models:
+            for bg in between_groups:
+                arr = df_clean[(df_clean["Model"] == m) & (df_clean[between_factor] == bg)]["Score"].dropna().values
+                factor_groups[f"{m}|{bg}"] = arr
+
+        stats = group_stats_and_checks(factor_groups)
+        if len(stats) < 2:
+            return None
+
+        # Test homogeneity of variances for between-subject factor groups at each model level
+        homogeneity_violated = False
+        for m in models:
+            model_data = [df_clean[(df_clean["Model"] == m) & (df_clean[between_factor] == bg)]["Score"].dropna().values for bg in between_groups]
+            if len(model_data) > 1 and all(len(g) > 1 for g in model_data):
+                stat_fligner, p_fligner = fligner(*model_data)
+                if p_fligner < 0.05:
+                    homogeneity_violated = True
+                    break
+
+        # Run mixed_anova.
+        res = pg.mixed_anova(dv="Score", within="Model", correction='none', between=between_factor, subject="SubjectID", data=df_clean)
+        if res.empty:
+            return None
+
+        interaction_name = f"Model*{between_factor}"
+        interaction_row = res[res["Source"] == interaction_name]
+
+        if interaction_row.empty:
+            interaction_data = {}
+        else:
+            F_val = interaction_row["F"].values[0]
+            p_val = interaction_row["p-unc"].values[0]
+            df_interaction = interaction_row["DF"].values[0]
+            interaction_data = {
+                "Interaction": interaction_name,
+                "F_interaction": F_val,
+                "p_interaction": p_val,
+                "DF_interaction": df_interaction
+            }
+
+        row = {
+            "Factor": factor,
+            "Within": "Model",
+            "Between": between_factor,
+            "Homogeneity_Violated": homogeneity_violated
+        }
+        row.update(interaction_data)
+
+        idx = 1
+        for k, st in stats.items():
+            row[f"GroupName_{idx}"] = k
+            row[f"N_{idx}"] = st["N"]
+            row[f"Mean_{idx}"] = st["Mean"]
+            row[f"Std_{idx}"] = st["Std"]
+            row[f"Shapiro_p_{idx}"] = st["Shapiro_p"]
+            row[f"Normal_{idx}"] = st["Normal"]
+            idx += 1
+
+        pd.DataFrame([row]).to_csv(filename, index=False)
+        return True
+
+    # 1. Run repeated-measures ANOVA by model.
+    overall_path = os.path.join(anova_dir, "overall.csv")
+    df_long = df_metric[["SubjectID", "Model", "Score"]].dropna()
+    overall_res = perform_rm_anova(df_long, factor="Model")
+    if overall_res is not None:
+        pd.DataFrame([overall_res]).to_csv(overall_path, index=False)
+
+    # 2. Run Welch's one-way ANOVA for each model by race and age.
     for model_val in df_metric["Model"].unique():
         model_subset = df_metric[df_metric["Model"] == model_val]
         model_anova_dir = os.path.join(anova_dir, model_val)
         os.makedirs(model_anova_dir, exist_ok=True)
 
         race_path = os.path.join(model_anova_dir, "race.csv")
-        if not os.path.exists(race_path):
-            race_groups = {}
-            for r_val in model_subset["Race"].unique():
-                race_groups[r_val] = model_subset[model_subset["Race"] == r_val]["Score"].values
-            race_res = perform_anova(race_groups, factor="Race")
-            if race_res is not None:
-                pd.DataFrame([race_res]).to_csv(race_path, index=False)
+        race_groups = {}
+        for r_val in model_subset["Race"].unique():
+            race_groups[r_val] = model_subset[model_subset["Race"] == r_val]["Score"].values
+        race_res = perform_anova(race_groups, factor="Race")
+        if race_res is not None:
+            pd.DataFrame([race_res]).to_csv(race_path, index=False)
 
         age_path = os.path.join(model_anova_dir, "age.csv")
-        if not os.path.exists(age_path):
-            age_groups = {}
-            for a_val in model_subset["Age"].unique():
-                age_groups[a_val] = model_subset[model_subset["Age"] == a_val]["Score"].values
-            age_res = perform_anova(age_groups, factor="Age")
-            if age_res is not None:
-                pd.DataFrame([age_res]).to_csv(age_path, index=False)
+        age_groups = {}
+        for a_val in model_subset["Age"].unique():
+            age_groups[a_val] = model_subset[model_subset["Age"] == a_val]["Score"].values
+        age_res = perform_anova(age_groups, factor="Age")
+        if age_res is not None:
+            pd.DataFrame([age_res]).to_csv(age_path, index=False)
 
-    # 3. Run ANOVA by model for each subsets of data: each non-white race/ethnicity and all non-white images combined.
-    nonwhite_path = os.path.join(anova_dir, "race.csv")
-    # If file exists, skip.
-    if not os.path.exists(nonwhite_path):
-        all_races = df_metric["Race"].unique()
-        nonwhite_races = [r for r in all_races if r.lower() != "white"]
-        results_nonwhite = []
+    # 3. Run mixed-design ANOVA.
+    race_mixed_path = os.path.join(anova_dir, "race.csv")
+    perform_mixed_anova(df_metric, factor="Model", between_factor="Race", filename=race_mixed_path)
 
-        # Get nonwhite combined.
-        nonwhite_subset = df_metric[~df_metric["Race"].str.lower().str.contains("white")]
-        if len(nonwhite_subset) > 0:
-            nonwhite_groups = {}
-            for model_val in nonwhite_subset["Model"].unique():
-                nonwhite_groups[model_val] = nonwhite_subset[nonwhite_subset["Model"] == model_val]["Score"].values
-            res_nonwhite = perform_anova(nonwhite_groups, factor="Model")
-            if res_nonwhite is not None:
-                # Indicate which subset we are testing.
-                res_nonwhite["Subset"] = "Non-White"
-                results_nonwhite.append(res_nonwhite)
-
-        # Loop over each nonwhite race.
-        for nr in nonwhite_races:
-            nr_subset = df_metric[df_metric["Race"] == nr]
-            nr_groups = {}
-            for model_val in nr_subset["Model"].unique():
-                nr_groups[model_val] = nr_subset[nr_subset["Model"] == model_val]["Score"].values
-            res_nr = perform_anova(nr_groups, factor="Model")
-            if res_nr is not None:
-                # Indicate which subset or particular nonwhite race.
-                res_nr["Subset"] = nr
-                results_nonwhite.append(res_nr)
-
-        # Save all nonwhite results into one CSV.
-        if results_nonwhite:
-            pd.DataFrame(results_nonwhite).to_csv(nonwhite_path, index=False)
-
-def run_kruskal_for_metric(df_metric, metric, analysis_dir):
-    metric_dir = os.path.join(analysis_dir, metric)
-    kruskal_dir = os.path.join(metric_dir, "kruskalwallis_tests")
-    os.makedirs(kruskal_dir, exist_ok=True)
-
-    def group_stats_nonparametric(groups):
-        stats = {}
-        for gname, scores in groups.items():
-            arr = np.array(scores)
-            n = len(arr)
-            if n == 0:
-                median = np.nan
-                iqr = np.nan
-            else:
-                median = np.median(arr)
-                q1 = np.percentile(arr, 25) if n > 1 else median
-                q3 = np.percentile(arr, 75) if n > 1 else median
-                iqr = q3 - q1
-            stats[gname] = {
-                "N": n,
-                "Median": median,
-                "IQR": iqr
-            }
-        return stats
-
-    def perform_kruskal(groups, factor):
-        # We must have at least two groups with data.
-        if len(groups) < 2:
-            return None
-
-        filtered_groups = {g: arr for g, arr in groups.items() if len(arr) > 0}
-        if len(filtered_groups) < 2:
-            return None
-
-        stats = group_stats_nonparametric(filtered_groups)
-        if len(stats) < 2:
-            return None
-
-        group_arrays = list(filtered_groups.values())
-
-        # Perform Kruskal–Wallis test.
-        H_stat, p_val = kruskal(*group_arrays)
-
-        k = len(filtered_groups)
-        df_between = k - 1
-
-        row = {
-            "Factor": factor,
-            "Groups": ",".join(filtered_groups.keys()),
-            "df_between": df_between,
-            "H": H_stat,
-            "p-value": p_val
-        }
-
-        # Add group stats of median, IQR, N.
-        for i, (gname, st) in enumerate(stats.items(), start=1):
-            row[f"GroupName_{i}"] = gname
-            row[f"N_{i}"] = st["N"]
-            row[f"Median_{i}"] = st["Median"]
-            row[f"IQR_{i}"] = st["IQR"]
-
-        return row
-
-    # 1. Test overall by model.
-    overall_path = os.path.join(kruskal_dir, "overall.csv")
-    if not os.path.exists(overall_path):
-        model_groups = {}
-        for model_val in df_metric["Model"].unique():
-            model_groups[model_val] = df_metric[df_metric["Model"] == model_val]["Score"].values
-        overall_res = perform_kruskal(model_groups, factor="Model")
-        if overall_res is not None:
-            pd.DataFrame([overall_res]).to_csv(overall_path, index=False)
-
-    # 2. Test each model by race and age.
-    for model_val in df_metric["Model"].unique():
-        model_subset = df_metric[df_metric["Model"] == model_val]
-        model_kruskal_dir = os.path.join(kruskal_dir, model_val)
-        os.makedirs(model_kruskal_dir, exist_ok=True)
-
-        race_path = os.path.join(model_kruskal_dir, "race.csv")
-        if not os.path.exists(race_path):
-            race_groups = {}
-            for r_val in model_subset["Race"].unique():
-                race_groups[r_val] = model_subset[model_subset["Race"] == r_val]["Score"].values
-            race_res = perform_kruskal(race_groups, factor="Race")
-            if race_res is not None:
-                pd.DataFrame([race_res]).to_csv(race_path, index=False)
-
-        age_path = os.path.join(model_kruskal_dir, "age.csv")
-        if not os.path.exists(age_path):
-            age_groups = {}
-            for a_val in model_subset["Age"].unique():
-                age_groups[a_val] = model_subset[model_subset["Age"] == a_val]["Score"].values
-            age_res = perform_kruskal(age_groups, factor="Age")
-            if age_res is not None:
-                pd.DataFrame([age_res]).to_csv(age_path, index=False)
-
-    # 3. Run Kruskal-Wallis by model for each subsets of data: each non-white race/ethnicity and all non-white images combined.
-    nonwhite_path = os.path.join(kruskal_dir, "race.csv")
-    if not os.path.exists(nonwhite_path):
-        all_races = df_metric["Race"].unique()
-        nonwhite_races = [r for r in all_races if r.lower() != "white"]
-        results_nonwhite = []
-
-        # Get nonwhite combined.
-        nonwhite_subset = df_metric[~df_metric["Race"].str.lower().str.contains("white")]
-        if len(nonwhite_subset) > 0:
-            nonwhite_groups = {}
-            for model_val in nonwhite_subset["Model"].unique():
-                nonwhite_groups[model_val] = nonwhite_subset[nonwhite_subset["Model"] == model_val]["Score"].values
-            res_nonwhite = perform_kruskal(nonwhite_groups, factor="Model")
-            if res_nonwhite is not None:
-                res_nonwhite["Subset"] = "Non-White"
-                results_nonwhite.append(res_nonwhite)
-
-        # Loop over individual non-white races.
-        for nr in nonwhite_races:
-            nr_subset = df_metric[df_metric["Race"] == nr]
-            nr_groups = {}
-            for model_val in nr_subset["Model"].unique():
-                nr_groups[model_val] = nr_subset[nr_subset["Model"] == model_val]["Score"].values
-            res_nr = perform_kruskal(nr_groups, factor="Model")
-            if res_nr is not None:
-                res_nr["Subset"] = nr
-                results_nonwhite.append(res_nr)
-
-        if results_nonwhite:
-            pd.DataFrame(results_nonwhite).to_csv(nonwhite_path, index=False)
+    age_mixed_path = os.path.join(anova_dir, "age.csv")
+    perform_mixed_anova(df_metric, factor="Model", between_factor="Age", filename=age_mixed_path)
 
 # Define main script.
 if __name__ == "__main__":
@@ -723,4 +693,3 @@ if __name__ == "__main__":
         run_t_tests_for_metric(df, metric, analysis_dir)
         run_mannwhitney_for_metric(df, metric, analysis_dir)
         run_anovas_for_metric(df, metric, analysis_dir)
-        run_kruskal_for_metric(df, metric, analysis_dir)
