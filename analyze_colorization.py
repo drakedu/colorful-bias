@@ -145,11 +145,8 @@ def create_facets(df_metric, metric, analysis_dir):
     ]
     
     for var1, var2 in facet_pairs:
-        pair_dir_name = f"{var1.lower()}_{var2.lower()}"
-        pair_dir = os.path.join(facet_dir, pair_dir_name)
-        os.makedirs(pair_dir, exist_ok=True)
-        
-        out_file = os.path.join(pair_dir, f"{pair_dir_name}.png")
+        pair_file_name = f"{var1.lower()}_{var2.lower()}.png"
+        out_file = os.path.join(facet_dir, pair_file_name)
         
         # If image already exists, skip.
         if os.path.exists(out_file):
@@ -158,8 +155,8 @@ def create_facets(df_metric, metric, analysis_dir):
         # Create the FacetGrid.
         g = sns.FacetGrid(df_metric, row=var1, col=var2, sharex=True, sharey=True, margin_titles=True)
         
-        # Map a histogram plot to each facet.
-        g.map(sns.histplot, "Score")
+        # Map a KDE plot to each facet.
+        g.map(sns.kdeplot, "Score", fill=True)
         
         # Adjust layout to fit titles.
         plt.tight_layout()
@@ -226,5 +223,5 @@ if __name__ == "__main__":
         # Run analysis.
         create_joyplots_for_metric(df, metric, analysis_dir)
         create_summary_statistics(df, metric, analysis_dir)
-        # create_facets(df, metric, analysis_dir)
+        create_facets(df, metric, analysis_dir)
         create_barcharts(df, metric, analysis_dir)
