@@ -5,7 +5,7 @@ import joypy
 from itertools import chain, combinations
 import seaborn as sns
 import numpy as np
-from scipy.stats import ttest_ind, shapiro, t
+from scipy.stats import ttest_ind, shapiro, t, mannwhitneyu
 
 # Encode a row into a plot label based on the subset of columns included.
 def encode_attribute(row, subset):
@@ -332,6 +332,99 @@ def run_t_tests_for_metric(df_metric, metric, analysis_dir):
         if results:
             pd.DataFrame(results).to_csv(out_path, index=False)
 
+def run_mannwhitney_for_metric(df_metric, metric, analysis_dir):
+    metric_dir = os.path.join(analysis_dir, metric)
+    os.makedirs(metric_dir, exist_ok=True)
+    t_test_dir = os.path.join(metric_dir, "mannwhitneyu_tests")
+    os.makedirs(t_test_dir, exist_ok=True)
+
+    models = df_metric["Model"].unique()
+
+    def rank_biserial_correlation(U, n1, n2):
+        return 1 - (2 * U) / (n1 * n2)
+
+    def do_comparison(g1_scores, g2_scores, comparison_name, group1_name, group2_name):
+        n1 = len(g1_scores)
+        n2 = len(g2_scores)
+        if n1 < 2 or n2 < 2:
+            return None
+        
+        # Use two-sided Mann-Whitney U test.
+        U_stat, p_val = mannwhitneyu(g1_scores, g2_scores, alternative='two-sided')
+        
+        median1 = np.median(g1_scores)
+        median2 = np.median(g2_scores)
+        r = rank_biserial_correlation(U_stat, n1, n2)
+
+        return {
+            "Comparison": comparison_name,
+            "Group1": group1_name,
+            "Group2": group2_name,
+            "N1": n1,
+            "N2": n2,
+            "Median1": median1,
+            "Median2": median2,
+            "U-stat": U_stat,
+            "p-value": p_val,
+            "RankBiserialCorr": r
+        }
+
+    for model in models:
+        model_df = df_metric[df_metric["Model"] == model]
+        if model_df.empty:
+            continue
+
+        out_path = os.path.join(t_test_dir, f"{model}.csv")
+
+        # Skip if file already exists.
+        if os.path.exists(out_path):
+            continue
+
+        results = []
+
+        # 1. Check male versus female.
+        male_scores = model_df[model_df["Gender"] == "Male"]["Score"]
+        female_scores = model_df[model_df["Gender"] == "Female"]["Score"]
+        if not male_scores.empty and not female_scores.empty:
+            res = do_comparison(male_scores, female_scores, "Male vs Female", "Male", "Female")
+            if res is not None:
+                results.append(res)
+
+        # 2. Check each age versus the rest.
+        unique_ages = model_df["Age"].unique()
+        for age_val in unique_ages:
+            age_scores = model_df[model_df["Age"] == age_val]["Score"]
+            rest_scores = model_df[model_df["Age"] != age_val]["Score"]
+            if not age_scores.empty and not rest_scores.empty:
+                comp_name = f"{age_val} vs Rest"
+                res = do_comparison(age_scores, rest_scores, comp_name, age_val, "Rest")
+                if res is not None:
+                    results.append(res)
+
+        # 3. Check white versus each other race/ethnicity.
+        if "White" in model_df["Race"].values:
+            white_scores = model_df[model_df["Race"] == "White"]["Score"]
+            other_races = [r for r in model_df["Race"].unique() if r != "White"]
+            for orace in other_races:
+                orace_scores = model_df[model_df["Race"] == orace]["Score"]
+                if not white_scores.empty and not orace_scores.empty:
+                    comp_name = f"White vs {orace}"
+                    res = do_comparison(white_scores, orace_scores, comp_name, "White", orace)
+                    if res is not None:
+                        results.append(res)
+
+            # 4. Check white versus non-white.
+            nonwhite_scores = model_df[model_df["Race"] != "White"]["Score"]
+            if not white_scores.empty and not nonwhite_scores.empty:
+                comp_name = "White vs Non-White"
+                res = do_comparison(white_scores, nonwhite_scores, comp_name, "White", "Non-White")
+                if res is not None:
+                    results.append(res)
+
+        # Save results to CSV.
+        if results:
+            pd.DataFrame(results).to_csv(out_path, index=False)
+
 # Define main script.
 if __name__ == "__main__":
     metric_dir = "results/compute_metrics"
@@ -355,3 +448,4 @@ if __name__ == "__main__":
         create_facets(df, metric, analysis_dir)
         create_barcharts(df, metric, analysis_dir)
         run_t_tests_for_metric(df, metric, analysis_dir)
+        run_mannwhitney_for_metric(df, metric, analysis_dir)
