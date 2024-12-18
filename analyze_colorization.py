@@ -532,12 +532,6 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         p_val = model_row["p-unc"].values[0]
         F_val = model_row["F"].values[0]
         ddof1 = model_row["DF"].values[0]
-        
-        # Add partial eta-squared (np2) for effect size if available.
-        if "np2" in model_row.columns:
-            np2 = model_row["np2"].values[0]
-        else:
-            np2 = np.nan
 
         row = {
             "Factor": factor,
@@ -546,7 +540,6 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
             "ddof1": ddof1,
             "F": F_val,
             "p-value": p_val,
-            "partial_eta_squared": np2
         }
 
         for i, (gname, st) in enumerate(stats.items(), start=1):
@@ -618,7 +611,7 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
         }
 
         def add_effect_info(effect_row, prefix):
-            # Adds F, p-value, and effect sizes (np2, ng2) if available.
+            # Adds F, p-value, and effect size if available.
             if not effect_row.empty:
                 row[f"F_{prefix}"] = effect_row["F"].values[0]
                 row[f"p_{prefix}"] = effect_row["p-unc"].values[0]
@@ -626,11 +619,6 @@ def run_anovas_for_metric(df_metric, metric, analysis_dir):
                     row[f"partial_eta_squared_{prefix}"] = effect_row["np2"].values[0]
                 else:
                     row[f"partial_eta_squared_{prefix}"] = np.nan
-                
-                if "ng2" in effect_row.columns:
-                    row[f"generalized_eta_squared_{prefix}"] = effect_row["ng2"].values[0]
-                else:
-                    row[f"generalized_eta_squared_{prefix}"] = np.nan
 
         # Add model effect.
         add_effect_info(model_row, "Model")
