@@ -157,6 +157,7 @@ This project uses Python 3.11.
 6. ```python run_colorization.py```
 7. ```python compute_metrics.py```
 8. ```python analyze_colorization.py```
+9. ```python prepare_results.py```
 
 ## Methods
 
@@ -182,7 +183,7 @@ After computing metrics between ground-truth images and reconstructions, we firs
 
 ## Limitations
 
-One of the limitations of our analysis was the relatively small sample size per demographic subgroup, as we only had access to 22 images per group. This restricted the statistical power of our tests, but future work can look at gaining access to larger annotated datasets. Additionally, the size of our suite of implemented models constrained our ability to draw conclusions about their differences in reconstruction disparities, though more models can be integrated going forward. Another challenge was the lack of both normality and homogeneity of variance in the data, each of which is important to many of the statistical tests we employed. Future work can thus investigate non-parametric methods that do not rely on these model assumptions. This would also mitigate the need to test for sphericity, which was unable to be checked for in this research project due to numerical instability.
+One of the limitations of our analysis was the relatively small sample size per demographic subgroup, as we only had access to 22 images per group. This restricted the statistical power of our tests, but future work can look at gaining access to larger annotated datasets. Additionally, the size of our suite of implemented models constrained our ability to draw conclusions about their differences in reconstruction disparities, though more models can be integrated going forward. Another challenge was the lack of both normality and homogeneity of variance in the data, each of which is important to many of the statistical tests we employed. Future work can thus investigate non-parametric methods that do not rely on these model assumptions, such as Kruskal–Wallis tests and Friedman tests. This would also mitigate the need to test for sphericity, which was unable to be checked for in this research project due to numerical instability.
 
 ## Conclusion
 
