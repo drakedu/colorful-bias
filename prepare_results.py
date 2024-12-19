@@ -248,7 +248,7 @@ def create_recolorization_grid():
 
 # Define main script.
 if __name__ == "__main__":
-    random.seed(2831)
+    random.seed(2831 * 2831)
     analysis_dir = "results/prepare_results"
 
     # Prepare results.
