@@ -13,6 +13,7 @@
   - [Downloading Models](#downloading-models)
   - [Computing Metrics](#computing-metrics)
   - [Analyzing Colorization](#analyzing-colorization)
+- [Limitations](#limitations)
 - [Conclusion](#conclusion)
 
 ## Introduction
@@ -178,6 +179,10 @@ To determine quality of image recolorization, we leveraged the PyTorch Toolbox f
 ### Analyzing Colorization
 
 After computing metrics between ground-truth images and reconstructions, we first explored differences across demographic groups using joyplots, facets, and CI-annotated barcharts. Next, we computed summary statistics for every age-gender-race-model combination, inclusive of an `All` keyword, to cover varying aggregations. We then conducted Welch's t-tests, checking for normality, and Mann-Whitney U tests to determine for each model whether there was a significant difference in its reconstruction scores by gender; by age through one-versus-rest; and by race in comparing White reconstructions against non-White reconstructions as well as against reconstructions from each non-White race/ethnicity. Next, we used one-way Welch's ANOVA tests after checking for normality to determine whether for each model there was a significant difference in its reconstruction scores by race and by age. We then use repeated-measures ANOVA tests after checking for normality to determine whether there was a significant difference in scores across models. Lastly, after checking for normality and homogeneity of variances, we use mixed-design ANOVA tests with model as the within-subject factor and race and age each as between-subject factors to determine if disparities by demographics vary across models. Due to issues involving numerical instability, sphericity was unable to be diagnosed for the repeated-measures ANOVA tests and the mixed-design ANOVA tests. Finally, throughout the analysis, normality checks were automated through Shapiro-Wilk tests as manual graphical analysis would not be tractable at this scale. Similarly, to test for homogeneity of variance for our mixed-design ANOVA, we leveraged Fligner-Killeen tests.
+
+## Limitations
+
+One of the limitations of our analysis was the relatively small sample size per demographic subgroup, as we only had access to 22 images per group. This restricted the statistical power of our tests, but future work can look at gaining access to larger annotated datasets. Additionally, the size of our suite of implemented models constrained our ability to draw conclusions about their differences in reconstruction disparities, though more models can be integrated going forward. Another challenge was the lack of both normality and homogeneity of variance in the data, each of which is important to many of the statistical tests we employed. Future work can thus investigate non-parametric methods that do not rely on these model assumptions. This would also mitigate the need to test for sphericity, which was unable to be checked in this research project due to numerical instability.
 
 ## Conclusion
 
