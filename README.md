@@ -13,6 +13,9 @@
   - [Downloading Models](#downloading-models)
   - [Computing Metrics](#computing-metrics)
   - [Analyzing Colorization](#analyzing-colorization)
+- [Results](#results)
+  - [Recolorization](#recolorization)
+  - [Barcharts](#barcharts)
 - [Limitations](#limitations)
 - [Conclusion](#conclusion)
 
@@ -163,7 +166,7 @@ This project uses Python 3.11.
 
 ### Choosing the Dataset
 
-For this research project, [FairFace](https://github.com/dchen236/FairFace) was employed as the source of race/ethnicity-annotated facial images. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating robust statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
+For this research project, [FairFace](https://github.com/dchen236/FairFace) was employed as the source of race/ethnicity-annotated facial images. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
 
 ### Sampling Data
 
@@ -175,11 +178,34 @@ While many colorization models have been proposed over the years, a sizeable pro
 
 ### Computing Metrics
 
-To determine quality of image recolorization, we leveraged the PyTorch Toolbox for Image Quality Assessment due to its support of a wide-range of seminal metrics and ease of use. Out of the 38 metrics supported by the library, we were able to compute 28 of them for each of the 13860 image recolorings across the 5 models, possible largely by the help of 6 additional computers in Lamont Library and the blessing of library staff. Q-Align, AHIQ, TReS, MANIQA, ILNIQE, HyperIQA, BRISQUE, NRQM, and PI were projected to take 10 days, 5 days, 4 days, 3 days, 1 day, 16 hours, 15 hours, 7 hours, and 6 hours, respectively, while FID lacked a default image dataset fallback.
+To determine quality of image recolorization, we leveraged the PyTorch Toolbox for Image Quality Assessment due to its support of a wide-range of seminal metrics and ease of use. Out of the 38 metrics supported by the library, we were able to compute 28 of them for each of the 13860 image recolorings across the 5 models, possible largely by the help of 6 additional computers in Lamont Library and the blessing of library staff. Q-Align, AHIQ, TReS, MANIQA, ILNIQE, HyperIQA, BRISQUE, NRQM, and PI were projected to take 10 days, 5 days, 4 days, 3 days, 1 day, 16 hours, 15 hours, 7 hours, and 6 hours, respectively, while FID lacked a default image dataset fallback. All 28 metrics taking at most around 6 hours were successfully computed. 
 
 ### Analyzing Colorization
 
-After computing metrics between ground-truth images and reconstructions, we first explored differences across demographic groups using joyplots, facets, and CI-annotated barcharts. Next, we computed summary statistics for every age-gender-race-model combination, inclusive of an `All` keyword, to cover varying aggregations. We then conducted Welch's t-tests, checking for normality, and Mann-Whitney U tests to determine for each model whether there was a significant difference in its reconstruction scores by gender; by age through one-versus-rest; and by race in comparing White reconstructions against non-White reconstructions as well as against reconstructions from each non-White race/ethnicity. Next, we used one-way Welch's ANOVA tests after checking for normality to determine whether for each model there was a significant difference in its reconstruction scores by race and by age. We then use repeated-measures ANOVA tests after checking for normality to determine whether there was a significant difference in scores across models. Lastly, after checking for normality and homogeneity of variances, we use mixed-design ANOVA tests with model as the within-subject factor and race and age each as between-subject factors to determine if disparities by demographics vary across models. Due to issues involving numerical instability, sphericity was unable to be diagnosed for the repeated-measures ANOVA tests and the mixed-design ANOVA tests. Finally, throughout the analysis, normality checks were automated through Shapiro-Wilk tests as manual graphical analysis would not be tractable at this scale. Similarly, to test for homogeneity of variance for our mixed-design ANOVA, we leveraged Fligner-Killeen tests.
+After computing metrics between ground-truth images and reconstructions, we first explored differences across groups using joyplots, facets, and CI-annotated barcharts. Next, we computed summary statistics for every age-gender-race-model combination, inclusive of an `All` keyword, to cover varying aggregations. We then conducted Welch's t-tests, checking for normality, and Mann-Whitney U tests to determine for each model whether there was a significant difference in its reconstruction scores by gender; by age through one-versus-rest; and by race in comparing White reconstructions against non-White reconstructions as well as against reconstructions from each non-White race/ethnicity. Next, we used one-way Welch's ANOVA tests after checking for normality to determine whether for each model there was a significant difference in its reconstruction scores by race and by age. We then use repeated-measures ANOVA tests after checking for normality to determine whether there was a significant difference in scores across models. Lastly, after checking for normality and homogeneity of variances, we used mixed-design ANOVA tests with model as the within-subject factor and race and age each as between-subject factors to determine if disparities by demographics vary across models. Due to issues involving numerical instability, sphericity was unable to be diagnosed for the repeated-measures ANOVA tests and the mixed-design ANOVA tests. Throughout the analysis, normality checks were automated through Shapiro-Wilk tests as manual graphical analysis would not be tractable at this scale. Similarly, to test for homogeneity of variance for our mixed-design ANOVA, we leveraged Fligner-Killeen tests.
+
+## Results
+
+### Recolorization
+
+Each of the 5 models was able to colorize every one of the 2772 ground truth images over the span of 2 days. Here we have a grid of recolorized images from each model displayed against the ground truth, with one sample from each of the 14 race-gender groupings. Differences in the colorization results across the models are clearly visible.
+
+![Recolorization Sampling Grid](results/prepare_results/recolorization_grid.png)
+
+### Barcharts
+
+For each metric, we created CI-annotated barcharts to visualize average scores when stratifying by 4 factors: age, gender, race, and model. Here, we look at a subset of results. For NLPD, we very clearly see differences in scores across models. Interestingly, the most recent model of 2023 Kang performs worst on average, as lower scores are better for this metric. For CLIPIQA, we see a difference in performance by gender, with images of male subjects having better reconstructions by this metric than female subjects. For PIEAPP, we see differences in performance by race, with images of White and Middle Eastern subjects having the best reconstruction scores. Lastly, for no-reference WaDIQaM, we can see noticeable differences in scores across ages, with subjects up to 2 years old or above 70 scoring highest on reconstruction.
+
+<table>
+  <tr>
+    <td><img src="results/analyze_colorization/NLPD/barcharts/Model.png" alt="NLPD Scores by Model"></td>
+    <td><img src="results/analyze_colorization/CLIPIQA/barcharts/Gender.png" alt="CLIPIQA Scores by Gender"></td>
+  </tr>
+  <tr>
+    <td><img src="results/analyze_colorization/PIEAPP/barcharts/Race.png" alt="PIEAPP Scores by Race"></td>
+    <td><img src="results/analyze_colorization/WaDIQaM (NR)/barcharts/Age.png" alt="WaDIQaM (NR) Scores by Age"></td>
+  </tr>
+</table>
 
 ## Limitations
 
