@@ -247,20 +247,6 @@ def create_recolorization_grid():
     plt.savefig(os.path.join(out_dir, "recolorization_grid.png"))
     plt.close()
 
-def copy_files_to_results(file_paths):
-    # Define the target directory..
-    target_dir = "results/prepare_results"
-    os.makedirs(target_dir, exist_ok=True)
-    
-    # Copy each file in the list to the target directory.
-    for file_path in file_paths:
-        if os.path.isfile(file_path):
-            base_name = os.path.basename(file_path)
-            target_path = os.path.join(target_dir, base_name)
-            shutil.copy2(file_path, target_path)
-        else:
-            raise ValueError(f"File {file_path} is not a file or does not exist.")
-
 # Define main script.
 if __name__ == "__main__":
     random.seed(2831 * 2831)
@@ -270,7 +256,3 @@ if __name__ == "__main__":
     create_disparity_heuristics(analysis_dir)
     create_disparity_barplots(analysis_dir)
     create_recolorization_grid()
-
-    # Copy files to results directory.
-    files_to_copy = ["results/analyze_colorization/ARNIQA/barcharts/Age.png", "results/analyze_colorization/CKDN1/facets/age_race.png", "results/analyze_colorization/LPIPS/joyplots/gender_race_model.png", "results/analyze_colorization/GMSD/t_tests/2023 Kang.csv", "results/analyze_colorization/NLPD/mannwhitneyu_tests/2018 Antic.csv", "results/analyze_colorization/SSIM/ANOVA_tests/age.csv", "results/analyze_colorization/WaDIQaM (FR)/summary_statistics.csv", "results/analyze_colorization/PieAPP/ANOVA_tests/overall.csv", "results/analyze_colorization/MUSIQ/ANOVA_tests/2001 Reinhard/race.csv"]
-    copy_files_to_results(files_to_copy)
