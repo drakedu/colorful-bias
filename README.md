@@ -194,7 +194,7 @@ Each of the 5 models was able to colorize every one of the 2772 ground truth ima
 
 ### Barcharts
 
-For each metric, we created CI-annotated barcharts to visualize average scores when stratifying by 4 factors: age, gender, race, and model. Here, we look at a subset of results. For NLPD, we very clearly see differences in scores across models. Interestingly, the most recent model of 2023 Kang performs worst on average, as lower scores are better for this metric. For CLIPIQA, we see a difference in performance by gender, with images of male subjects having better reconstructions by this metric than female subjects. For PIEAPP, we see differences in performance by race, with images of White and Middle Eastern subjects having the best reconstruction scores. Lastly, for no-reference WaDIQaM, we can see noticeable differences in scores across ages, with subjects up to 2 years old or above 70 scoring highest on reconstruction.
+For each metric, we created CI-annotated barcharts to visualize average scores when stratifying by 4 factors: age, gender, race, and model. Here, we look at a subset of results. For NLPD, we very clearly see differences in scores across models. Interestingly, the most recent model of 2023 Kang performs worst on average, as lower scores are better for this metric. For CLIPIQA, we see a difference in performance by gender, with images of male subjects having better reconstructions by this metric than female subjects. For PieAPP, we see differences in performance by race, with images of White and Middle Eastern subjects having the best reconstruction scores. Lastly, for no-reference WaDIQaM, we can see noticeable differences in scores across ages, with subjects up to 2 years old or above 70 scoring highest on reconstruction.
 
 <table>
   <tr>
@@ -202,7 +202,7 @@ For each metric, we created CI-annotated barcharts to visualize average scores w
     <td><img src="results/analyze_colorization/CLIPIQA/barcharts/Gender.png" alt="CLIPIQA Scores by Gender"></td>
   </tr>
   <tr>
-    <td><img src="results/analyze_colorization/PIEAPP/barcharts/Race.png" alt="PIEAPP Scores by Race"></td>
+    <td><img src="results/analyze_colorization/PieAPP/barcharts/Race.png" alt="PieAPP Scores by Race"></td>
     <td><img src="results/analyze_colorization/WaDIQaM (NR)/barcharts/Age.png" alt="WaDIQaM (NR) Scores by Age"></td>
   </tr>
 </table>
