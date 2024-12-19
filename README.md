@@ -16,6 +16,9 @@
 - [Results](#results)
   - [Recolorization](#recolorization)
   - [Barcharts](#barcharts)
+  - [Facets](#facets)
+  - [Joyplots](#joyplots)
+  - [Summary Statistics](#summary-statistics)
 - [Limitations](#limitations)
 - [Conclusion](#conclusion)
 
@@ -206,6 +209,45 @@ For each metric, we created CI-annotated barcharts to visualize average scores w
     <td><img src="results/analyze_colorization/WaDIQaM (NR)/barcharts/Age.png" alt="WaDIQaM (NR) Scores by Age"></td>
   </tr>
 </table>
+
+### Facets
+
+For each metric, we created two-dimensional facets based on all 6 pairs among age, gender, race, and model. Here we look at an example result for full-reference TOPIQ. We can see that for this metric, scores vary widely by model, whereas only small effects can be seen for gender.
+
+![TOPIQ (FR) Gender-Model Facet](results/analyze_colorization/TOPIQ%20(FR)/facets/gender_model.png)
+
+### Joyplots
+
+To get a big picture understanding of score range and behavior across groups, we created joyplots for all 16 subsets of age-gender-race-model. Here, we have the gender-race-model joyplot for ARNIQA.
+
+![ARNIQA Gender-Race-Model Joyplot](results/analyze_colorization/ARNIQA/joyplots/gender_race_model.png)
+
+### Summary Statistics
+
+Our last batch of exploratory data analysis for each metric was creating summary statistics. We computed all 1440 age-gender-race-model combinations inclusive of an `All` keyword to cover varying aggregations. Below are the top 20 rows of summary statistics for PSNR.
+
+|Age|Gender|Race|Model|Mean|Median|Standard Deviation|IQR|Lower Better|
+|---|---|---|---|---|---|---|---|---|
+|All|All|All|All|23.746290785512883|23.62385654449463|4.551968465979468|4.869461536407467|False|
+|0-2|All|All|All|23.25450802035146|23.096850395202637|4.574577868895466|4.806198596954346|False|
+|10-19|All|All|All|23.41152549409247|23.204188346862793|4.093194870515825|5.070611000061035|False|
+|20-29|All|All|All|24.29193657775978|24.058866500854492|4.462347841180699|4.631749629974365|False|
+|3-9|All|All|All|22.80049496625925|22.655241012573242|4.212472107822797|4.988142490386966|False|
+|30-39|All|All|All|24.109582820496|24.011911392211914|4.54354956306265|5.233553886413574|False|
+|40-49|All|All|All|23.95283812981147|24.06586456298828|4.044056115067646|5.028602123260498|False|
+|50-59|All|All|All|23.59485093463551|23.695880889892578|4.344434640209412|4.74501466751099|False|
+|60-69|All|All|All|24.039917325973512|23.895816802978516|4.788069408201891|4.582380294799805|False|
+|more than 70|All|All|All|24.26096280023649|23.863627433776855|5.509883090844478|4.566039085388184|False|
+|All|Female|All|All|23.602220069588004|23.4708890914917|4.388108771548343|4.7810282707214355|False|
+|All|Male|All|All|23.890361501437763|23.784811973571777|4.706039406627894|4.937168121337891|False|
+|All|All|Black|All|23.5398264986096|23.437650680541992|4.60592190395045|4.775972366333011|False|
+|All|All|East Asian|All|23.597166728491736|23.55604362487793|4.239379111993309|4.737373352050781|False|
+|All|All|Indian|All|23.692256008494983|23.605233192443848|4.544037389637518|5.095743656158447|False|
+|All|All|Latino_Hispanic|All|23.912411434481843|23.870217323303223|4.425471819034588|4.806936740875244|False|
+|All|All|Middle Eastern|All|24.27284752046219|23.935327529907227|4.973672409091583|4.832328796386719|False|
+|All|All|Southeast Asian|All|23.386926381274908|23.245975494384766|4.832221078581255|5.064819812774658|False|
+|All|All|White|All|23.82260092677492|23.65176773071289|4.134025545706683|4.709608078002926|False|
+|All|All|All|2001 Reinhard|25.121037349384412|24.09907341003418|6.857395120869607|4.674080848693848|False|
 
 ## Limitations
 
