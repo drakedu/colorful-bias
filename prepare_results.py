@@ -5,7 +5,6 @@ import pandas as pd
 import glob
 from PIL import Image
 import random
-import shutil
 
 def create_disparity_heuristics(dir):
     # Define patterns for race and age ANOVA results.
