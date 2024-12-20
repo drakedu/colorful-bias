@@ -218,7 +218,7 @@ For each metric, we created two-dimensional facets based on all 6 pairs among ag
 
 ### Joyplots
 
-To get a big picture understanding of score range and behavior across groups, we created joyplots for all 16 subsets of age-gender-race-model. Here, we have the gender-race-model joyplot for ARNIQA.
+To get a big picture understanding of score range and behavior across groups for each metric, we created joyplots for all 16 subsets of age-gender-race-model. Here, we have the gender-race-model joyplot for ARNIQA.
 
 ![ARNIQA Gender-Race-Model Joyplot](results/analyze_colorization/ARNIQA/joyplots/gender_race_model.png)
 
