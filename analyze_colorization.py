@@ -10,21 +10,31 @@ import numpy as np
 from patsy import dmatrix
 
 def run_multivariate_mixed_effects_model(metric_dir, analysis_dir):
-    # Step 1: Combine CSVs.
-    csv_files = [f for f in os.listdir(metric_dir) if f.endswith('.csv')]
-    df_all = pd.concat([pd.read_csv(os.path.join(metric_dir, f)) for f in csv_files], ignore_index=True)
+    data_csv_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_data.csv")
 
-    if 'Metric' not in df_all.columns or 'Score' not in df_all.columns:
-        raise ValueError("The combined DataFrame must contain 'Metric' and 'Score' columns.")
-    if 'Dataset' not in df_all.columns or 'Number' not in df_all.columns:
-        raise ValueError("The combined DataFrame must contain 'Dataset' and 'Number' columns.")
+    # Check if processed data file already exists before doing any processing.
+    if os.path.exists(data_csv_path):
+        # If it exists, just load it.
+        df_wide = pd.read_csv(data_csv_path)
+    else:
+        # Step 1: Combine CSVs only if we need to create the data file.
+        csv_files = [f for f in os.listdir(metric_dir) if f.endswith('.csv')]
+        df_all = pd.concat([pd.read_csv(os.path.join(metric_dir, f)) for f in csv_files], ignore_index=True)
 
-    # Step 2: Pivot to wide format.
-    df_wide = df_all.pivot_table(
-        index=['Dataset', 'Number', 'Age', 'Gender', 'Race', 'Model'],
-        columns='Metric',
-        values='Score'
-    ).reset_index()
+        if 'Metric' not in df_all.columns or 'Score' not in df_all.columns:
+            raise ValueError("The combined DataFrame must contain 'Metric' and 'Score' columns.")
+        if 'Dataset' not in df_all.columns or 'Number' not in df_all.columns:
+            raise ValueError("The combined DataFrame must contain 'Dataset' and 'Number' columns.")
+
+        # Step 2: Pivot to wide format.
+        df_wide = df_all.pivot_table(
+            index=['Dataset', 'Number', 'Age', 'Gender', 'Race', 'Model'],
+            columns='Metric',
+            values='Score'
+        ).reset_index()
+
+        # Save the processed data before model fitting.
+        df_wide.to_csv(data_csv_path, index=False)
 
     key_cols = ['Dataset', 'Number', 'Age', 'Gender', 'Race', 'Model']
     metrics = [col for col in df_wide.columns if col not in key_cols]
@@ -68,7 +78,7 @@ def run_multivariate_mixed_effects_model(metric_dir, analysis_dir):
         trace = pm.sample(draws=1000, chains=2, target_accept=0.9)
 
     summary_df = az.summary(trace)
-    summary_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model.csv")
+    summary_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_results.csv")
     summary_df.to_csv(summary_path)
 
 # Encode a row into a plot label based on the subset of columns included.
