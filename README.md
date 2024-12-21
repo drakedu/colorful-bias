@@ -53,7 +53,7 @@ Many race/ethnicity-annotated face datasets have emerged over the years. Some ha
 
 ### Image Colorization Research
 
-Strategies for image colorization have evolved over the years and feature a diversity of AI frameworks as well as user inputs. Some examples of unsupervised methods include focus on random fields [7, 8], stochastic sampling [9], deep neural networks [10, 11, 12, 13, 14], encoders and decoders [15, 16], convolutional neural networks [17, 18, 19, 20], generative adversarial networks [21, 22, 23, 24], instance-aware coloring [25, 26, 27], transformers [28, 29, 30], and transfer learning [31]. Likewise, supervised methods leverage sample scribbles and strokes (Levin et al., 2004; Yatziv & Shapiro, 2006; Pang et al., 2013; Sangkloy et al., 2017; Zhang et al., 2018; Sun et al., 2019; Zhang et al., 2021; Dou et al., 2022), reference images or patches (Reinhard et al., 2001; Welsh et al., 2002; Irony et al., 2005; Liu et al., 2008; Gupta et al., 2012; Li et al., 2014; He et al., 2018; Xian et al., 2018; Fang et al., 2019; Li et al., 2019; Lee et al., 2020; Xu et al., 2020; Lu et al., 2020; Kim et al., 2021; Li et al., 2021; Yin et al., 2021; Bai et al., 2022; Wang et al., 2022; Zou et al., 2022), target color palettes and pixels (Chang et al., 2015; Frans, 2017; Bahng et al., 2018; Yun et al., 2023), text descriptions (Chen et al., 2018; Manjunatha et al., 2018; Zabari et al., 2023; Chang et al., 2023; Zhang et al., 2023; Yan et al., 2023), and multimodal combinations of these (Lei & Chen, 2019; Liu et al., 2023; Liang et al., 2024; Bozic et al., 2024). Here, we provide an in-depth overview of research papers on image colorization.
+Strategies for image colorization have evolved over the years and feature a diversity of AI frameworks as well as user inputs. Some examples of unsupervised methods include focus on random fields [7, 8], stochastic sampling [9], deep neural networks [10, 11, 12, 13, 14], encoders and decoders [15, 16], convolutional neural networks [17, 18, 19, 20], generative adversarial networks [21, 22, 23, 24], instance-aware coloring [25, 26, 27], transformers [28, 29, 30], and transfer learning [31]. Likewise, supervised methods leverage sample scribbles and strokes [32, 33, 34, 35, 36, 37, 38, 39], reference images or patches [40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58], target color palettes and pixels [59, 60, 61, 62], text descriptions [63, 64, 65, 66, 67, 68], and multimodal combinations of these [69, 70, 71, 72]. Here, we provide an in-depth overview of research papers on image colorization.
 
 | Title | Year | Author(s) | Supervision | Implementation |
 | - | - | - | - | - |
@@ -132,7 +132,7 @@ Strategies for image colorization have evolved over the years and feature a dive
 ### Bias Metrics
 
 Various conceptualizations of bias have emerged in the image colorization space. Broadly, they include absolute metrics based on geometry, perceptual metrics based on non-uniformities in human color vision, and semantic metrics measuring how well the colorization preserves the semantic meaning of the image. Metrics can further be divided into those requiring a reference image and those that are automatic based on deep learning methods as explained in [Comparison of Metrics for Colorized Image Quality
-Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20Colorized%20Image%20Quality%20Evaluation.pdf) (Žeger et al., 2022). As of December 2024, the two leading Python libraries for image quality assessment (IQA) include PyTorch Toolbox for Image Quality Assessment (PIQA) and PyTorch Image Quality (PIQ). Here, we provide a sampling of bias metrics over the years.
+Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20Colorized%20Image%20Quality%20Evaluation.pdf) [73]. As of December 2024, the two leading Python libraries for image quality assessment (IQA) include PyTorch Toolbox for Image Quality Assessment (PIQA) and PyTorch Image Quality (PIQ). Here, we provide a sampling of bias metrics over the years.
 
 | Metric | Year | Type | Reference |
 | - | - | - | - |
@@ -170,7 +170,7 @@ This project uses Python 3.11.
 
 ### Choosing the Dataset
 
-For this research project, [FairFace](https://github.com/dchen236/FairFace) (Kärkkäinen & Joo, 2021) was employed as the source of race/ethnicity-annotated facial images. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
+For this research project, [FairFace](https://github.com/dchen236/FairFace) was employed as the source of race/ethnicity-annotated facial images [74]. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
 
 ### Sampling Data
 
@@ -178,7 +178,7 @@ To facilitate consistency and comparability across demographic subgroups, we ran
 
 ### Downloading Models
 
-While many colorization models have been proposed over the years, a sizeable proportion of them lack open-source implementations. For this research project, we spent 30 minutes attempting to set up each of 37 different models, of which 5 were successfully integrated. These included [Color Transfer between Images](https://www.researchgate.net/publication/220518215_Color_Transfer_between_Images) (Reinhard et al., 2001), [Colorful Image Colorization](https://arxiv.org/abs/1603.08511) (Zhang et al., 2016), [Real-Time User-Guided Image Colorization with Learned Deep Priors](https://arxiv.org/abs/1705.02999) (Zhang et al., 2017), [DeOldify](https://github.com/jantic/DeOldify) (Antic, 2018), and [DDColor: Towards Photo-Realistic Image Colorization via Dual Decoders](https://arxiv.org/abs/2212.11613) (Kang et al., 2023). Due to time constraints, 9 other models received no attempt. Issues included datasets and pre-trained models no longer being publicly available, deprecated packages no longer being offered by channels such as Conda, stringent GPU requirements, macOS incompatibilities with LuaJIT and Caffe, intractable user input requirements, and domain limitations.
+While many colorization models have been proposed over the years, a sizeable proportion of them lack open-source implementations. For this research project, we spent 30 minutes attempting to set up each of 37 different models, of which 5 were successfully integrated. These included [Color Transfer between Images](https://www.researchgate.net/publication/220518215_Color_Transfer_between_Images) [40], [Colorful Image Colorization](https://arxiv.org/abs/1603.08511) [17], [Real-Time User-Guided Image Colorization with Learned Deep Priors](https://arxiv.org/abs/1705.02999) [18], [DeOldify](https://github.com/jantic/DeOldify) [75], and [DDColor: Towards Photo-Realistic Image Colorization via Dual Decoders](https://arxiv.org/abs/2212.11613) [16]. Due to time constraints, 9 other models received no attempt. Issues included datasets and pre-trained models no longer being publicly available, deprecated packages no longer being offered by channels such as Conda, stringent GPU requirements, macOS incompatibilities with LuaJIT and Caffe, intractable user input requirements, and domain limitations.
 
 ### Computing Metrics
 
@@ -319,13 +319,13 @@ A major simplifying assumption in our research project was that the image qualit
 
 ## Conclusion
 
-Analyzing how colorful bias has changed over time brings us closer to understanding how we might proactively create systems and algorithms to combat it. From diversity in image datasets, knowledge of historical and cultural context, and conceptions of palatable color schemes, deconstructing exact sources of bias remains an open challenge as detailed in [The Limits of AI Image Colorization: A Companion](https://samgoree.github.io/2021/04/21/colorization_companion.html) (Goree, 2021). While new formulations for bias metrics such as those introduced in [Bias in Automated Image Colorization: Metrics and Error Types](https://arxiv.org/pdf/2202.08143) (Stapel et al., 2022) further complicate this endeavor, the increased focus on these normative questions in the space of image colorization in recent years brings hope for fairer and more inclusive technological progress.
+Analyzing how colorful bias has changed over time brings us closer to understanding how we might proactively create systems and algorithms to combat it. From diversity in image datasets, knowledge of historical and cultural context, and conceptions of palatable color schemes, deconstructing exact sources of bias remains an open challenge as detailed in [The Limits of AI Image Colorization: A Companion](https://samgoree.github.io/2021/04/21/colorization_companion.html) (Goree, 2021). While new formulations for bias metrics such as those introduced in [Bias in Automated Image Colorization: Metrics and Error Types](https://arxiv.org/pdf/2202.08143) further complicate this endeavor [77], the increased focus on these normative questions in the space of image colorization in recent years brings hope for fairer and more inclusive technological progress.
 
 ## References
 
 [1] N. Grant and K. Hill. "Google’s photo app still can’t find gorillas. And neither can Apple’s." The New York Times, May 22, 2023. [Online]. Available: https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html [Accessed: Dec. 21, 2024].
 
-[2] J.. Buolamwini. "Study finds gender and skin-type bias in commercial artificial-intelligence systems." MIT News, Feb. 12, 2018. [Online]. Available: https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/ [Accessed: Dec. 21, 2024].
+[2] J. Buolamwini. "Study finds gender and skin-type bias in commercial artificial-intelligence systems." MIT News, Feb. 12, 2018. [Online]. Available: https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/ [Accessed: Dec. 21, 2024].
 
 [3] C. Chen et al. MORPH-II: inconsistencies and cleaning whitepaper. NSF-REU Site at UNC Wilmington, 2017. [Online]. Available: https://libres.uncg.edu/ir/uncw/f/wangy2017-1.pdf [Accessed: Dec. 21, 2024].
 
@@ -384,3 +384,95 @@ Analyzing how colorful bias has changed over time brings us closer to understand
 [30] Z. Huang, N. Zhao, and J. Liao. UniColor: A unified framework for multi-modal colorization with transformer. *arXiv preprint arXiv:2209.11223*, 2022. URL: [https://arxiv.org/abs/2209.11223](https://arxiv.org/abs/2209.11223).
 
 [31] H. Lee, D. Kim, D. Lee, J. Kim, and J. Lee. Bridging the domain gap towards generalization in automatic colorization. In S. Avidan, G. Brostow, M. Cissé, G. M. Farinella, and T. Hassner (Eds.), *Computer Vision – ECCV 2022*, Lecture Notes in Computer Science, vol. 13677. Springer, Cham, 2022. DOI: [10.1007/978-3-031-19790-1_32](https://doi.org/10.1007/978-3-031-19790-1_32).
+
+[32] A. Levin, D. Lischinski, and Y. Weiss. Colorization using optimization. *ACM Transactions on Graphics (ACM Trans. Graph.)*, 23(3):689–694, Aug. 2004. DOI: [10.1145/1015706.1015780](https://doi.org/10.1145/1015706.1015780).
+
+[33] L. Yatziv and G. Sapiro. Fast image and video colorization using chrominance blending. *IEEE Transactions on Image Processing*, 15(5):1120–1129, June 2006. DOI: [10.1109/TIP.2005.864231](https://doi.org/10.1109/TIP.2005.864231).
+
+[34] J. Pang, O. Au, K. Tang, and Y. Guo. Image colorization using sparse representation. In *Proceedings of the 2013 IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP)*, pages 1578–1582, May 2013. DOI: [10.1109/ICASSP.2013.6637917](https://doi.org/10.1109/ICASSP.2013.6637917).
+
+[35] P. Sangkloy, J. Lu, C. Fang, F. Yu, and J. Hays. Scribbler: Controlling deep image synthesis with sketch and color. *arXiv preprint arXiv:1612.00835*, 2016. URL: [https://arxiv.org/abs/1612.00835](https://arxiv.org/abs/1612.00835).
+
+[36] L. Zhang, C. Li, T.-T. Wong, Y. Ji, and C. Liu. Two-stage sketch colorization. *ACM Transactions on Graphics (ACM Trans. Graph.)*, 37(6):261, Dec. 2018. DOI: [10.1145/3272127.3275090](https://doi.org/10.1145/3272127.3275090).
+
+[37] T.-H. Sun, C.-H. Lai, S.-K. Wong, and Y.-S. Wang. Adversarial colorization of icons based on structure and color conditions. *arXiv preprint arXiv:1910.05253*, 2019. URL: [https://arxiv.org/abs/1910.05253](https://arxiv.org/abs/1910.05253).
+
+[38] L. Zhang, C. Li, E. Simo-Serra, Y. Ji, T.-T. Wong, and C. Liu. User-guided line art flat filling with split filling mechanism. In *Proceedings of the 2021 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pages 9884–9893, 2021. DOI: [10.1109/CVPR46437.2021.00976](https://doi.org/10.1109/CVPR46437.2021.00976).
+
+[39] Z. Dou, N. Wang, B. Li, Z. Wang, H. Li, and B. Liu. Dual color space guided sketch colorization. *IEEE Transactions on Image Processing*, 30:7292–7304, 2021. DOI: [10.1109/TIP.2021.3104190](https://doi.org/10.1109/TIP.2021.3104190).
+
+[40] E. Reinhard, M. Ashikhmin, B. Gooch, and P. Shirley. Color transfer between images. *IEEE Computer Graphics and Applications*, 21(5):34–41, Oct. 2001. DOI: [10.1109/38.946629](https://doi.org/10.1109/38.946629).
+
+[41] T. Welsh, M. Ashikhmin, and K. Mueller. Transferring color to greyscale images. *ACM Transactions on Graphics (ACM Trans. Graph.)*, 21(3):277–280, July 2002. DOI: [10.1145/566570.566576](https://doi.org/10.1145/566570.566576).
+
+[42] R. Irony, D. Cohen-Or, and D. Lischinski. Colorization by example. In *Proceedings of the Sixteenth Eurographics Conference on Rendering Techniques (EGSR '05)*, pages 201–210, Konstanz, Germany, 2005. Eurographics Association. DOI: [10.5555/2383654.2383683](https://doi.org/10.5555/2383654.2383683).
+
+[43] X. Liu, L. Wan, Y. Qu, T.-T. Wong, S. Lin, A. C.-S. Leung, and P.-A. Heng. Intrinsic colorization. In *ACM SIGGRAPH Asia 2008 Papers*, 2008. URL: [https://api.semanticscholar.org/CorpusID:271198206](https://api.semanticscholar.org/CorpusID:271198206).
+
+[44] R. K. Gupta, A. Y.-S. Chia, D. Rajan, E. S. Ng, and Z. Huang. Image colorization using similar images. In *Proceedings of the 20th ACM International Conference on Multimedia (MM '12)*, pages 369–378, Nara, Japan, 2012. Association for Computing Machinery. DOI: [10.1145/2393347.2393402](https://doi.org/10.1145/2393347.2393402).
+
+[45] B. Li, F. Zhao, Z. Su, X. Liang, Y.-K. Lai, and P. L. Rosin. Example-based image colorization using locality consistent sparse representation. *IEEE Transactions on Image Processing*, 26(11):5188–5202, Nov. 2017. DOI: [10.1109/TIP.2017.2732239](https://doi.org/10.1109/TIP.2017.2732239). PMID: 28749352.
+
+[46] M. He, D. Chen, J. Liao, P. Sander, and L. Yuan. Deep exemplar-based colorization. *ACM Transactions on Graphics (ACM Trans. Graph.)*, 37(4):1–16, July 2018. DOI: [10.1145/3197517.3201365](https://doi.org/10.1145/3197517.3201365).
+
+[47] W. Xian, P. Sangkloy, V. Agrawal, A. Raj, J. Lu, C. Fang, F. Yu, and J. Hays. TextureGAN: Controlling deep image synthesis with texture patches. *arXiv preprint arXiv:1706.02823*, 2018. URL: [https://arxiv.org/abs/1706.02823](https://arxiv.org/abs/1706.02823).
+
+[48] F. Fang, T. Wang, T. Zeng, and G. Zhang. A superpixel-based variational model for image colorization. *IEEE Transactions on Visualization and Computer Graphics*, 26(10):2931–2943, 2020. DOI: [10.1109/TVCG.2019.2908363](https://doi.org/10.1109/TVCG.2019.2908363).
+
+[49] B. Li, Y.-K. Lai, M. John, and P. L. Rosin. Automatic example-based image colorization using location-aware cross-scale matching. *IEEE Transactions on Image Processing*, 28(9):4606–4619, 2019. DOI: [10.1109/TIP.2019.2912291](https://doi.org/10.1109/TIP.2019.2912291).
+
+[50] J. Lee, E. Kim, Y. Lee, D. Kim, J. Chang, and J. Choo. Reference-based sketch image colorization using augmented-self reference and dense semantic correspondence. *arXiv preprint arXiv:2005.05207*, 2020. URL: [https://arxiv.org/abs/2005.05207](https://arxiv.org/abs/2005.05207).
+
+[51] Z. Xu, T. Wang, F. Fang, Y. Sheng, and G. Zhang. Stylization-based architecture for fast deep exemplar colorization. In *Proceedings of the 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pages 9360–9369, 2020. DOI: [10.1109/CVPR42600.2020.00938](https://doi.org/10.1109/CVPR42600.2020.00938).
+
+[52] P. Lu, J. Yu, X. Peng, Z. Zhao, and X. Wang. Gray2ColorNet: Transfer more colors from reference image. In *Proceedings of the 28th ACM International Conference on Multimedia (MM '20)*, pages 3210–3218, Seattle, WA, USA, 2020. Association for Computing Machinery. DOI: [10.1145/3394171.3413594](https://doi.org/10.1145/3394171.3413594).
+
+[53] E. Kim, S. Lee, J. Park, S. Choi, C. Seo, and J. Choo. Deep edge-aware interactive colorization against color-bleeding effects. *arXiv preprint arXiv:2107.01619*, 2021. URL: [https://arxiv.org/abs/2107.01619](https://arxiv.org/abs/2107.01619).
+
+[54] H. Li, B. Sheng, P. Li, R. Ali, and C. L. P. Chen. Globally and locally semantic colorization via exemplar-based Broad-GAN. *IEEE Transactions on Image Processing*, 30:8526–8539, 2021. DOI: [10.1109/TIP.2021.3117061](https://doi.org/10.1109/TIP.2021.3117061).
+
+[55] W. Yin, P. Lu, Z. Zhao, and X. Peng. Yes, "Attention is all you need," for exemplar-based colorization. In *Proceedings of the 29th ACM International Conference on Multimedia (MM '21)*, pages 2243–2251, Virtual Event, China, 2021. Association for Computing Machinery. DOI: [10.1145/3474085.3475385](https://doi.org/10.1145/3474085.3475385).
+
+[56] Y. Bai, C. Dong, Z. Chai, A. Wang, Z. Xu, and C. Yuan. Semantic-sparse colorization network for deep exemplar-based colorization. *arXiv preprint arXiv:2112.01335*, 2022. URL: [https://arxiv.org/abs/2112.01335](https://arxiv.org/abs/2112.01335).
+
+[57] H. Wang, D. Zhai, X. Liu, J. Jiang, and W. Gao. Unsupervised deep exemplar colorization via pyramid dual non-local attention. *IEEE Transactions on Image Processing*, 32:4114–4127, 2023. DOI: [10.1109/TIP.2023.3293777](https://doi.org/10.1109/TIP.2023.3293777).
+
+[58] C. Zou, S. Wan, M. G. Blanch, L. Murn, M. Mrak, J. Sock, F. Yang, and L. Herranz. Lightweight deep exemplar colorization via semantic attention-guided Laplacian pyramid. *IEEE Transactions on Visualization and Computer Graphics*, pages 1–12, 2024. DOI: [10.1109/TVCG.2024.3398791](https://doi.org/10.1109/TVCG.2024.3398791).
+
+[59] H. Chang, O. Fried, Y. Liu, S. DiVerdi, and A. Finkelstein. Palette-based photo recoloring. *ACM Transactions on Graphics (ACM Trans. Graph.)*, 34(4):139, Aug. 2015. DOI: [10.1145/2766978](https://doi.org/10.1145/2766978).
+
+[60] K. Frans. Outline colorization through tandem adversarial networks. *arXiv preprint arXiv:1704.08834*, 2017. URL: [https://arxiv.org/abs/1704.08834](https://arxiv.org/abs/1704.08834).
+
+[61] H. Bahng, S. Yoo, W. Cho, D. K. Park, Z. Wu, X. Ma, and J. Choo. Coloring with words: Guiding image colorization through text-based palette generation. *arXiv preprint arXiv:1804.04128*, 2018. URL: [https://arxiv.org/abs/1804.04128](https://arxiv.org/abs/1804.04128).
+
+[62] J. Yun, S. Lee, M. Park, and J. Choo. iColoriT: Towards propagating local hint to the right region in interactive colorization by leveraging vision transformer. *arXiv preprint arXiv:2207.06831*, 2022. URL: [https://arxiv.org/abs/2207.06831](https://arxiv.org/abs/2207.06831).
+
+[63] J. Chen, Y. Shen, J. Gao, J. Liu, and X. Liu. Language-based image editing with recurrent attentive models. *arXiv preprint arXiv:1711.06288*, 2018. URL: [https://arxiv.org/abs/1711.06288](https://arxiv.org/abs/1711.06288).
+
+[64] V. Manjunatha, M. Iyyer, J. Boyd-Graber, and L. Davis. Learning to color from language. *arXiv preprint arXiv:1804.06026*, 2018. URL: [https://arxiv.org/abs/1804.06026](https://arxiv.org/abs/1804.06026).
+
+[65] N. Zabari, A. Azulay, A. Gorkor, T. Halperin, and O. Fried. Diffusing colors: Image colorization with text guided diffusion. *arXiv preprint arXiv:2312.04145*, 2023. URL: [https://arxiv.org/abs/2312.04145](https://arxiv.org/abs/2312.04145).
+
+[66] Z. Chang, S. Weng, P. Zhang, Y. Li, S. Li, and B. Shi. L-CoIns: Language-based colorization with instance awareness. In *Proceedings of the 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pages 19221–19230, 2023. DOI: [10.1109/CVPR52729.2023.01842](https://doi.org/10.1109/CVPR52729.2023.01842).
+
+[67] L. Zhang, A. Rao, and M. Agrawala. Adding conditional control to text-to-image diffusion models. *arXiv preprint arXiv:2302.05543*, 2023. URL: [https://arxiv.org/abs/2302.05543](https://arxiv.org/abs/2302.05543).
+
+[68] D. Yan, R. Ito, R. Moriai, and S. Saito. Two-step training: Adjustable sketch colourization via reference image and text tag. *Computer Graphics Forum*, 42(6):e14791, 2023. DOI: [https://doi.org/10.1111/cgf.14791](https://doi.org/10.1111/cgf.14791). URL: [https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.14791](https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.14791).
+
+[69] C. Lei and Q. Chen. Fully automatic video colorization with self-regularization and diversity. *arXiv preprint arXiv:1908.01311*, 2019. URL: [https://arxiv.org/abs/1908.01311](https://arxiv.org/abs/1908.01311).
+
+[70] H. Liu, J. Xing, M. Xie, C. Li, and T.-T. Wong. Improved diffusion-based image colorization via piggybacked models. *arXiv preprint arXiv:2304.11105*, 2023. URL: [https://arxiv.org/abs/2304.11105](https://arxiv.org/abs/2304.11105).
+
+[71] Z. Liang, Z. Li, S. Zhou, C. Li, and C. C. Loy. Control Color: Multimodal diffusion-based interactive image colorization. *arXiv preprint arXiv:2402.10855*, 2024. URL: [https://arxiv.org/abs/2402.10855](https://arxiv.org/abs/2402.10855).
+
+[72] V. Bozic, A. Djelouah, Y. Zhang, R. Timofte, M. Gross, and C. Schroers. Versatile vision foundation model for image and video colorization. In *ACM SIGGRAPH 2024 Conference Papers (SIGGRAPH '24)*, article 94, pages 1–11, Denver, CO, USA, 2024. Association for Computing Machinery. DOI: [10.1145/3641519.3657509](https://doi.org/10.1145/3641519.3657509).
+
+[73] I. Žeger, N. Bilanović, G. Šišul, and S. Grgić. Comparison of metrics for colorized image quality evaluation. In *Proceedings of the 2022 International Symposium ELMAR*, pages 209–214, 2022. DOI: [10.1109/ELMAR55880.2022.9899824](https://doi.org/10.1109/ELMAR55880.2022.9899824).
+
+[74] K. Karkkainen and J. Joo. FairFace: Face attribute dataset for balanced race, gender, and age for bias measurement and mitigation. In *Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)*, pages 1548–1558, 2021.
+
+[75] J. Antic. "DeOldify." GitHub, 2018. [Online]. Available: https://github.com/jantic/DeOldify [Accessed: Dec. 21, 2024].
+
+[76] S. Goree. "The limits of AI image colorization: a companion." GitHub, 2021. [Online]. Available: https://samgoree.github.io/2021/04/21/colorization_companion.html [Accessed: Dec. 21, 2024].
+
+[77] F. Stapel, F. Weers, and D. Bucur. Bias in automated image colorization: Metrics and error types. *arXiv preprint arXiv:2202.08143*, 2022. URL: [https://arxiv.org/abs/2202.08143](https://arxiv.org/abs/2202.08143).
