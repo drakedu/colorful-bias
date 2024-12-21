@@ -171,7 +171,37 @@ Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20
 
 ### Choosing the Dataset
 
-For this research project, [FairFace](https://github.com/dchen236/FairFace) was employed as the source of race/ethnicity-annotated facial images [74]. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
+For this research project, [FairFace](https://github.com/dchen236/FairFace) was employed as the source of race/ethnicity-annotated facial images [74]. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project. Below, we display the results of ```explore_data.py```. We can see that the dataset is somewhat imbalanced by all of age, race, and gender and that the smallest age-gender-race subgroup has 22 images.
+
+<table>
+  <tr>
+    <td><img src="results/explore_data/row_counts.png" alt="Training and Validation Image Counts"></td>
+    <td><img src="results/explore_data/race_counts.png" alt="Race Counts by Dataset"></td>
+  </tr>
+  <tr>
+    <td><img src="results/explore_data/gender_counts.png" alt="Gender Counts by Dataset"></td>
+    <td><img src="results/explore_data/age_distribution.png" alt="Age Distribution by Dataset"></td>
+  </tr>
+</table>
+
+|Gender|Race|0-2|10-19|20-29|3-9|30-39|40-49|50-59|60-69|More than 70|
+|------|----|---|-----|-----|----|-----|-----|-----|-----|------------|
+|Female|Black|91.0|850.0|1769.0|842.0|1323.0|682.0|371.0|165.0|44.0|
+|Female|East Asian|146.0|632.0|2902.0|675.0|1115.0|348.0|186.0|94.0|43.0|
+|Female|Indian|78.0|890.0|1704.0|695.0|1164.0|659.0|388.0|224.0|107.0|
+|Female|Latino_Hispanic|107.0|918.0|2004.0|837.0|1375.0|832.0|426.0|161.0|55.0|
+|Female|Middle Eastern|28.0|343.0|1041.0|248.0|616.0|327.0|155.0|67.0|22.0|
+|Female|Southeast Asian|76.0|718.0|1871.0|702.0|916.0|412.0|258.0|136.0|94.0|
+|Female|White|166.0|646.0|2972.0|640.0|1911.0|814.0|410.0|193.0|74.0|
+|Male|Black|188.0|668.0|1402.0|1230.0|1296.0|777.0|393.0|114.0|28.0|
+|Male|East Asian|262.0|544.0|1863.0|1061.0|1267.0|591.0|338.0|176.0|44.0|
+|Male|Indian|91.0|639.0|1373.0|835.0|1607.0|976.0|596.0|233.0|60.0|
+|Male|Latino_Hispanic|82.0|691.0|1527.0|752.0|1557.0|1125.0|698.0|194.0|26.0|
+|Male|Middle Eastern|106.0|392.0|1282.0|473.0|1782.0|1190.0|682.0|368.0|94.0|
+|Male|Southeast Asian|138.0|670.0|1639.0|821.0|1093.0|646.0|358.0|171.0|76.0|
+|Male|White|233.0|502.0|2249.0|597.0|2228.0|1365.0|969.0|483.0|75.0|
+
+![Sample Color Images](results/explore_data/sample_images.png)
 
 ### Sampling Data
 
