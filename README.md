@@ -26,13 +26,13 @@
 
 ## Introduction
 
-In 2015, Google Photos faced widespread backlash after its [algorithms mislabeled](https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html) Black people as gorillas (Grant & Hill, 2023). Three years later, the MIT Media Lab found that facial recognition systems had [error rates](https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/) as high as 34% for darker-skinned women compared to less than 1% for lighter-skinned men (Buolamwini, 2018). From image classification to facial recognition, computer vision is infamously flawed. In this research project, I investigated how these issues of fairness manifest in the age of generative AI. In particular, I explored the robustness of generative algorithms for image colorization with respect to skin tone bias. To accomplish this, I conducted a survey of race/ethnicity-annotated face datasets, compiled seminal algorithms for image colorization over the years, researched various formulations of bias metrics, and set up a code framework with statistical tests to rigorously compare the performance of coloring procedures. Through the above work, I sought to shed light on the trend in “colorful” bias, or bias in algorithmic colorization of images containing human skin tones, as seen through algorithms over time.
+In 2015, Google Photos faced widespread backlash after its [algorithms mislabeled](https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html) Black people as gorillas [1]. Three years later, the MIT Media Lab found that facial recognition systems had [error rates](https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/) as high as 34% for darker-skinned women compared to less than 1% for lighter-skinned men [2]. From image classification to facial recognition, computer vision is infamously flawed. In this research project, I investigated how these issues of fairness manifest in the age of generative AI. In particular, I explored the robustness of generative algorithms for image colorization with respect to skin tone bias. To accomplish this, I conducted a survey of race/ethnicity-annotated face datasets, compiled seminal algorithms for image colorization over the years, researched various formulations of bias metrics, and set up a code framework with statistical tests to rigorously compare the performance of coloring procedures. Through the above work, I sought to shed light on the trend in “colorful” bias, or bias in algorithmic colorization of images containing human skin tones, as seen through algorithms over time.
 
 ## Literature Review
 
 ### Race/Ethnicity-Annotated Face Datasets
 
-Many race/ethnicity-annotated face datasets have emerged over the years. Some have faced criticism for how their data were provisioned, an issue that has afflicted computer vision and AI more broadly. One such example is MORPH-II, which, as explained in [MORPH-II: Inconsistencies and Cleaning Whitepaper](https://libres.uncg.edu/ir/uncw/f/wangy2017-1.pdf) (Wang et al., 2018), drew from "55,134 mugshots taken between 2003 and late 2007." Beyond collection, datasets also use different localized conceptions of race/ethnicity, a potentially problematic inconsistency highlighted in [Racial Bias within Face Recognition: A Survey](https://dl.acm.org/doi/pdf/10.1145/3705295) (Yucer et al., 2024) and [One Label, One Billion Faces: Usage and Consistency of Racial Categories in Computer Vision](https://arxiv.org/abs/2102.02320) (Khan & Fu, 2021). Still, even if identities could be balanced in a standardized way, [What Should Be Balanced in a "Balanced" Face Recognition Dataset?](https://papers.bmvc2023.org/0235.pdf) (Wu & Bowyer, 2023) notes that this does not ensure balance in "other factors known to impact accuracy, such as head pose, brightness, and image quality." With this context in mind, we provide an overview of a few race/ethnicity-annotated face datasets.
+Many race/ethnicity-annotated face datasets have emerged over the years. Some have faced criticism for how their data were provisioned, an issue that has afflicted computer vision and AI more broadly. One such example is MORPH-II, which, as explained in [MORPH-II: Inconsistencies and Cleaning Whitepaper](https://libres.uncg.edu/ir/uncw/f/wangy2017-1.pdf), drew from "55,134 mugshots taken between 2003 and late 2007" [3]. Beyond collection, datasets also use different localized conceptions of race/ethnicity, a potentially problematic inconsistency highlighted in [Racial Bias within Face Recognition: A Survey](https://dl.acm.org/doi/pdf/10.1145/3705295) [4] and [One Label, One Billion Faces: Usage and Consistency of Racial Categories in Computer Vision](https://arxiv.org/abs/2102.02320) [5]. Still, even if identities could be balanced in a standardized way, [What Should Be Balanced in a "Balanced" Face Recognition Dataset?](https://papers.bmvc2023.org/0235.pdf) notes that this does not ensure balance in "other factors known to impact accuracy, such as head pose, brightness, and image quality" [6]. With this context in mind, we provide an overview of a few race/ethnicity-annotated face datasets.
 
 | Name | Year | Active | Count | Standardization | Races/Ethnicities |
 | - | - | - | - | - | - |
@@ -53,7 +53,7 @@ Many race/ethnicity-annotated face datasets have emerged over the years. Some ha
 
 ### Image Colorization Research
 
-Strategies for image colorization have evolved over the years and feature a diversity of AI frameworks as well as user inputs. Some examples of unsupervised methods include focus on random fields (Deshpande et al., 2015; Messaoud et al., 2018), stochastic sampling (Royer et al., 2017), deep neural networks (Cheng et al., 2016; Iizuka et al., 2016; Larsson et al., 2016; Lempitsky et al., 2018; Yoo et al., 2019), encoders and decoders (Deshpande et al., 2017; Kang et al., 2023), convolutional neural networks (Zhang et al., 2016; Zhang et al., 2017; Baldassarre et al., 2017; Zhao et al., 2019), generative adversarial networks (Cao et al., 2017; Vitoria et al., 2020; Wu et al., 2021; Kim et al., 2022), instance-aware coloring (Su et al., 2020; Jin et al., 2021; Cong et al., 2024), transformers (Kumar et al., 2021; Ji et al., 2022; Huang et al., 2022), and transfer learning (Lee et al., 2022). Likewise, supervised methods leverage sample scribbles and strokes (Levin et al., 2004; Yatziv & Shapiro, 2006; Pang et al., 2013; Sangkloy et al., 2017; Zhang et al., 2018; Sun et al., 2019; Zhang et al., 2021; Dou et al., 2022), reference images or patches (Reinhard et al., 2001; Welsh et al., 2002; Irony et al., 2005; Liu et al., 2008; Gupta et al., 2012; Li et al., 2014; He et al., 2018; Xian et al., 2018; Fang et al., 2019; Li et al., 2019; Lee et al., 2020; Xu et al., 2020; Lu et al., 2020; Kim et al., 2021; Li et al., 2021; Yin et al., 2021; Bai et al., 2022; Wang et al., 2022; Zou et al., 2022), target color palettes and pixels (Chang et al., 2015; Frans, 2017; Bahng et al., 2018; Yun et al., 2023), text descriptions (Chen et al., 2018; Manjunatha et al., 2018; Zabari et al., 2023; Chang et al., 2023; Zhang et al., 2023; Yan et al., 2023), and multimodal combinations of these (Lei & Chen, 2019; Liu et al., 2023; Liang et al., 2024; Bozic et al., 2024). Here, we provide an in-depth overview of research papers on image colorization.
+Strategies for image colorization have evolved over the years and feature a diversity of AI frameworks as well as user inputs. Some examples of unsupervised methods include focus on random fields [7, 8], stochastic sampling [9], deep neural networks [10, 11, 12, 13, 14], encoders and decoders [15, 16], convolutional neural networks [17, 18, 19, 20], generative adversarial networks [21, 22, 23, 24], instance-aware coloring [25, 26, 27], transformers [28, 29, 30], and transfer learning [31]. Likewise, supervised methods leverage sample scribbles and strokes (Levin et al., 2004; Yatziv & Shapiro, 2006; Pang et al., 2013; Sangkloy et al., 2017; Zhang et al., 2018; Sun et al., 2019; Zhang et al., 2021; Dou et al., 2022), reference images or patches (Reinhard et al., 2001; Welsh et al., 2002; Irony et al., 2005; Liu et al., 2008; Gupta et al., 2012; Li et al., 2014; He et al., 2018; Xian et al., 2018; Fang et al., 2019; Li et al., 2019; Lee et al., 2020; Xu et al., 2020; Lu et al., 2020; Kim et al., 2021; Li et al., 2021; Yin et al., 2021; Bai et al., 2022; Wang et al., 2022; Zou et al., 2022), target color palettes and pixels (Chang et al., 2015; Frans, 2017; Bahng et al., 2018; Yun et al., 2023), text descriptions (Chen et al., 2018; Manjunatha et al., 2018; Zabari et al., 2023; Chang et al., 2023; Zhang et al., 2023; Yan et al., 2023), and multimodal combinations of these (Lei & Chen, 2019; Liu et al., 2023; Liang et al., 2024; Bozic et al., 2024). Here, we provide an in-depth overview of research papers on image colorization.
 
 | Title | Year | Author(s) | Supervision | Implementation |
 | - | - | - | - | - |
@@ -322,3 +322,65 @@ A major simplifying assumption in our research project was that the image qualit
 Analyzing how colorful bias has changed over time brings us closer to understanding how we might proactively create systems and algorithms to combat it. From diversity in image datasets, knowledge of historical and cultural context, and conceptions of palatable color schemes, deconstructing exact sources of bias remains an open challenge as detailed in [The Limits of AI Image Colorization: A Companion](https://samgoree.github.io/2021/04/21/colorization_companion.html) (Goree, 2021). While new formulations for bias metrics such as those introduced in [Bias in Automated Image Colorization: Metrics and Error Types](https://arxiv.org/pdf/2202.08143) (Stapel et al., 2022) further complicate this endeavor, the increased focus on these normative questions in the space of image colorization in recent years brings hope for fairer and more inclusive technological progress.
 
 ## References
+
+[1] N. Grant and K. Hill. "Google’s photo app still can’t find gorillas. And neither can Apple’s." The New York Times, May 22, 2023. [Online]. Available: https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html [Accessed: Dec. 21, 2024].
+
+[2] J.. Buolamwini. "Study finds gender and skin-type bias in commercial artificial-intelligence systems." MIT News, Feb. 12, 2018. [Online]. Available: https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/ [Accessed: Dec. 21, 2024].
+
+[3] C. Chen et al. MORPH-II: inconsistencies and cleaning whitepaper. NSF-REU Site at UNC Wilmington, 2017. [Online]. Available: https://libres.uncg.edu/ir/uncw/f/wangy2017-1.pdf [Accessed: Dec. 21, 2024].
+
+[4] S. Yucer, F. Tektas, N. Al Moubayed, and T. Breckon. Racial bias within face recognition: a survey. ACM, 2024. DOI: 10.1145/3705295.
+
+[5] Z. Khan and Y. Fu. One label, one billion faces: Usage and consistency of racial categories in computer vision. In Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency, pages 587–597, Mar. 2021. ACM. DOI: 10.1145/3442188.3445920.
+
+[6] H. Wu and K. Bowyer. What should be balanced in a "balanced" face recognition dataset? In 34th British Machine Vision Conference 2023, BMVC 2023, Aberdeen, UK, November 20-24, 2023. BMVA, 2023. URL: https://papers.bmvc2023.org/0235.pdf.
+
+[7] A. Deshpande, J. Rock, and D. Forsyth. Learning large-scale automatic image colorization. In Proceedings of the IEEE International Conference on Computer Vision (ICCV), 2015.
+
+[8] S. Messaoud, D. Forsyth, and A. G. Schwing. Structural consistency and controllability for diverse colorization. arXiv preprint arXiv:1809.02129, 2018. URL: https://arxiv.org/abs/1809.02129.
+
+[9] A. Royer, A. Kolesnikov, and C. Lampert. Probabilistic image colorization. arXiv preprint arXiv:1705.04258, 2017. DOI: 10.48550/arXiv.1705.04258.
+
+[10] Z. Cheng, Q. Yang, and B. Sheng. Deep colorization. arXiv preprint arXiv:1605.00075, 2016. DOI: 10.48550/arXiv.1605.00075.
+
+[11] S. Iizuka, E. Simo-Serra, and H. Ishikawa. Let there be color! Joint end-to-end learning of global and local image priors for automatic image colorization with simultaneous classification. ACM Transactions on Graphics (ACM Trans. Graph.), 35(4):110, July 2016. DOI: 10.1145/2897824.2925974.
+
+[12] G. Larsson, M. Maire, and G. Shakhnarovich. Learning representations for automatic colorization. arXiv preprint arXiv:1603.06668, 2017. URL: https://arxiv.org/abs/1603.06668.
+
+[13] V. Lempitsky, A. Vedaldi, and D. Ulyanov. Deep image prior. In *Proceedings of the 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pages 9446–9454, 2018. DOI: [10.1109/CVPR.2018.00984](https://doi.org/10.1109/CVPR.2018.00984).
+
+[14] S. Yoo, H. Bahng, S. Chung, J. Lee, J. Chang, and J. Choo. Coloring with limited data: Few-shot colorization via memory-augmented networks. *arXiv preprint arXiv:1906.11888*, 2019. URL: [https://arxiv.org/abs/1906.11888](https://arxiv.org/abs/1906.11888).
+
+[15] A. Deshpande, J. Lu, M.-C. Yeh, M. J. Chong, and D. Forsyth. Learning diverse image colorization. *arXiv preprint arXiv:1612.01958*, 2017. URL: [https://arxiv.org/abs/1612.01958](https://arxiv.org/abs/1612.01958).
+
+[16] X. Kang, T. Yang, W. Ouyang, P. Ren, L. Li, and X. Xie. DDColor: Towards photo-realistic image colorization via dual decoders. *arXiv preprint arXiv:2212.11613*, 2023. URL: [https://arxiv.org/abs/2212.11613](https://arxiv.org/abs/2212.11613).
+
+[17] R. Zhang, P. Isola, and A. A. Efros. Colorful image colorization. *arXiv preprint arXiv:1603.08511*, 2016. URL: [https://arxiv.org/abs/1603.08511](https://arxiv.org/abs/1603.08511).
+
+[18] R. Zhang, J.-Y. Zhu, P. Isola, X. Geng, A. S. Lin, T. Yu, and A. A. Efros. Real-time user-guided image colorization with learned deep priors. *arXiv preprint arXiv:1705.02999*, 2017. URL: [https://arxiv.org/abs/1705.02999](https://arxiv.org/abs/1705.02999).
+
+[19] F. Baldassarre, D. González Morín, and L. Rodés-Guirao. Deep Koalarization: Image colorization using CNNs and Inception-ResNet-v2. *arXiv preprint arXiv:1712.03400*, 2017. URL: [https://arxiv.org/abs/1712.03400](https://arxiv.org/abs/1712.03400).
+
+[20] J. Zhao, J. Han, L. Shao, and C. G. M. Snoek. Pixelated semantic colorization. *arXiv preprint arXiv:1901.10889*, 2019. URL: [https://arxiv.org/abs/1901.10889](https://arxiv.org/abs/1901.10889).
+
+[21] Y. Cao, Z. Zhou, W. Zhang, and Y. Yu. Unsupervised diverse colorization via generative adversarial networks. *arXiv preprint arXiv:1702.06674*, 2017. URL: [https://arxiv.org/abs/1702.06674](https://arxiv.org/abs/1702.06674).
+
+[22] P. Vitoria, L. Raad, and C. Ballester. ChromaGAN: Adversarial picture colorization with semantic class distribution. *arXiv preprint arXiv:1907.09837*, 2020. URL: [https://arxiv.org/abs/1907.09837](https://arxiv.org/abs/1907.09837).
+
+[23] Y. Wu, X. Wang, Y. Li, H. Zhang, X. Zhao, and Y. Shan. Towards vivid and diverse image colorization with generative color prior. *arXiv preprint arXiv:2108.08826*, 2022. URL: [https://arxiv.org/abs/2108.08826](https://arxiv.org/abs/2108.08826).
+
+[24] G. Kim, K. Kang, S. Kim, H. Lee, S. Kim, J. Kim, S.-H. Baek, and S. Cho. BigColor: Colorization using a generative color prior for natural images. *arXiv preprint arXiv:2207.09685*, 2022. URL: [https://arxiv.org/abs/2207.09685](https://arxiv.org/abs/2207.09685).
+
+[25] J.-W. Su, H.-K. Chu, and J.-B. Huang. Instance-aware image colorization. *arXiv preprint arXiv:2005.10825*, 2020. URL: [https://arxiv.org/abs/2005.10825](https://arxiv.org/abs/2005.10825).
+
+[26] X. Jin, Z. Li, K. Liu, D. Zou, X. Li, X. Zhu, Z. Zhou, Q. Sun, and Q. Liu. Focusing on persons: Colorizing old images learning from modern historical movies. *arXiv preprint arXiv:2108.06515*, 2021. URL: [https://arxiv.org/abs/2108.06515](https://arxiv.org/abs/2108.06515).
+
+[27] X. Cong, Y. Wu, Q. Chen, and C. Lei. Automatic controllable colorization via imagination. *arXiv preprint arXiv:2404.05661*, 2024. URL: [https://arxiv.org/abs/2404.05661](https://arxiv.org/abs/2404.05661).
+
+[28] M. Kumar, D. Weissenborn, and N. Kalchbrenner. Colorization transformer. *arXiv preprint arXiv:2102.04432*, 2021. URL: [https://arxiv.org/abs/2102.04432](https://arxiv.org/abs/2102.04432).
+
+[29] X. Ji, B. Jiang, D. Luo, G. Tao, W. Chu, Z. Xie, C. Wang, and Y. Tai. ColorFormer: Image colorization via color memory assisted hybrid-attention transformer. In *Computer Vision – ECCV 2022: 17th European Conference, Tel Aviv, Israel, October 23–27, 2022, Proceedings, Part XVI*, pages 20–36. Springer-Verlag, Berlin, Heidelberg, 2022. DOI: [10.1007/978-3-031-19787-1_2](https://doi.org/10.1007/978-3-031-19787-1_2).
+
+[30] Z. Huang, N. Zhao, and J. Liao. UniColor: A unified framework for multi-modal colorization with transformer. *arXiv preprint arXiv:2209.11223*, 2022. URL: [https://arxiv.org/abs/2209.11223](https://arxiv.org/abs/2209.11223).
+
+[31] H. Lee, D. Kim, D. Lee, J. Kim, and J. Lee. Bridging the domain gap towards generalization in automatic colorization. In S. Avidan, G. Brostow, M. Cissé, G. M. Farinella, and T. Hassner (Eds.), *Computer Vision – ECCV 2022*, Lecture Notes in Computer Science, vol. 13677. Springer, Cham, 2022. DOI: [10.1007/978-3-031-19790-1_32](https://doi.org/10.1007/978-3-031-19790-1_32).
