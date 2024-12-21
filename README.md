@@ -22,6 +22,7 @@
   - [Multivariate Mixed-Effects Model](#multivariate-mixed-effects-model)
 - [Limitations](#limitations)
 - [Conclusion](#conclusion)
+- [References](#references)
 
 ## Introduction
 
@@ -52,7 +53,7 @@ Many race/ethnicity-annotated face datasets have emerged over the years. Some ha
 
 ### Image Colorization Research
 
-Strategies for image colorization have evolved over the years and feature a diversity of AI frameworks as well as user inputs. Some examples of unsupervised methods include focus on random fields (Deshpande et al., 2015; Messaoud et al., 2018), stochastic sampling (Royer et al., 2017), deep neural networks (Cheng et al., 2016; Iizuka et al., 2016; Larsson et al., 2016; Lempitsky et al., 2018; Yoo et al., 2019), encoders and decoders (Deshpande et al., 2017; Kang et al., 2022), convolutional neural networks (Zhang et al., 2016; Zhang et al., 2017; Baldassarre et al., 2017; Zhao et al., 2019), generative adversarial networks (Cao et al., 2017; Vitoria et al., 2020; Wu et al., 2021; Kim et al., 2022), instance-aware coloring (Su et al., 2020; Jin et al., 2021; Cong et al., 2024), transformers (Kumar et al., 2021; Ji et al., 2022; Huang et al., 2022), and transfer learning (Lee et al., 2022). Likewise, supervised methods leverage sample scribbles and strokes (Levin et al., 2004; Yatziv & Shapiro, 2006; Pang et al., 2013; Sangkloy et al., 2017; Zhang et al., 2018; Sun et al., 2019; Zhang et al., 2021; Dou et al., 2022), reference images or patches (Reinhard et al., 2001; Welsh et al., 2002; Irony et al., 2005; Liu et al., 2008; Gupta et al., 2012; Li et al., 2014; He et al., 2018; Xian et al., 2018; Fang et al., 2019; Li et al., 2019; Lee et al., 2020; Xu et al., 2020; Lu et al., 2020; Kim et al., 2021; Li et al., 2021; Yin et al., 2021; Bai et al., 2022; Wang et al., 2022; Zou et al., 2022), target color palettes and pixels (Chang et al., 2015; Frans, 2017; Bahng et al., 2018; Yun et al., 2023), text descriptions (Chen et al., 2018; Manjunatha et al., 2018; Zabari et al., 2023; Chang et al., 2023; Zhang et al., 2023; Yan et al., 2023), and multimodal combinations of these (Lei & Chen, 2019; Liu et al., 2023; Liang et al., 2024; Bozic et al., 2024). Here, we provide an in-depth overview of research papers on image colorization.
+Strategies for image colorization have evolved over the years and feature a diversity of AI frameworks as well as user inputs. Some examples of unsupervised methods include focus on random fields (Deshpande et al., 2015; Messaoud et al., 2018), stochastic sampling (Royer et al., 2017), deep neural networks (Cheng et al., 2016; Iizuka et al., 2016; Larsson et al., 2016; Lempitsky et al., 2018; Yoo et al., 2019), encoders and decoders (Deshpande et al., 2017; Kang et al., 2023), convolutional neural networks (Zhang et al., 2016; Zhang et al., 2017; Baldassarre et al., 2017; Zhao et al., 2019), generative adversarial networks (Cao et al., 2017; Vitoria et al., 2020; Wu et al., 2021; Kim et al., 2022), instance-aware coloring (Su et al., 2020; Jin et al., 2021; Cong et al., 2024), transformers (Kumar et al., 2021; Ji et al., 2022; Huang et al., 2022), and transfer learning (Lee et al., 2022). Likewise, supervised methods leverage sample scribbles and strokes (Levin et al., 2004; Yatziv & Shapiro, 2006; Pang et al., 2013; Sangkloy et al., 2017; Zhang et al., 2018; Sun et al., 2019; Zhang et al., 2021; Dou et al., 2022), reference images or patches (Reinhard et al., 2001; Welsh et al., 2002; Irony et al., 2005; Liu et al., 2008; Gupta et al., 2012; Li et al., 2014; He et al., 2018; Xian et al., 2018; Fang et al., 2019; Li et al., 2019; Lee et al., 2020; Xu et al., 2020; Lu et al., 2020; Kim et al., 2021; Li et al., 2021; Yin et al., 2021; Bai et al., 2022; Wang et al., 2022; Zou et al., 2022), target color palettes and pixels (Chang et al., 2015; Frans, 2017; Bahng et al., 2018; Yun et al., 2023), text descriptions (Chen et al., 2018; Manjunatha et al., 2018; Zabari et al., 2023; Chang et al., 2023; Zhang et al., 2023; Yan et al., 2023), and multimodal combinations of these (Lei & Chen, 2019; Liu et al., 2023; Liang et al., 2024; Bozic et al., 2024). Here, we provide an in-depth overview of research papers on image colorization.
 
 | Title | Year | Author(s) | Supervision | Implementation |
 | - | - | - | - | - |
@@ -112,10 +113,10 @@ Strategies for image colorization have evolved over the years and feature a dive
 | [ColorFormer: Image Colorization via Color Memory assisted Hybrid-attention Transformer](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136760020.pdf) | 2022 | Ji et al. | No | https://github.com/jixiaozhong/ColorFormer |
 | [BigColor: Colorization using a Generative Color Prior for Natural Images](https://kimgeonung.github.io/bigcolor/) | 2022 | Kim et al. | No | https://github.com/KIMGEONUNG/BigColor |
 | [Semantic-Sparse Colorization Network for Deep Exemplar-based Colorization](https://arxiv.org/abs/2112.01335) | 2022 | Bai et al. | Yes | https://github.com/bbaaii/SSC-Net |
-| [DDColor: Towards Photo-Realistic Image Colorization via Dual Decoders](https://arxiv.org/abs/2212.11613) | 2022 | Kang et al. | No | https://github.com/piddnad/DDColor |
 | [Lightweight Deep Exemplar Colorization via Semantic Attention-Guided Laplacian Pyramid](https://ieeexplore.ieee.org/abstract/document/10526459) | 2022 | Zou et al. | Yes | None |
 | [UniColor: A Unified Framework for Multi-Modal Colorization with Transformer](https://arxiv.org/abs/2209.11223) | 2022 | Huang et al. | No | https://github.com/luckyhzt/unicolor |
 | [Unsupervised Deep Exemplar Colorization via Pyramid Dual Non-Local Attention](https://ieeexplore.ieee.org/abstract/document/10183846) | 2022 | Wang et al. | Yes | https://github.com/wd1511/PDNLA-Net |
+| [DDColor: Towards Photo-Realistic Image Colorization via Dual Decoders](https://arxiv.org/abs/2212.11613) | 2023 | Kang et al. | No | https://github.com/piddnad/DDColor |
 | [Improved Diffusion-based Image Colorization via Piggybacked Models](https://arxiv.org/abs/2304.11105) | 2023 | Liu et al. | No | https://github.com/hyliu/piggyback-color |
 | [Two-Step Training: Adjustable Sketch Colourization via Reference Image and Text Tag](https://onlinelibrary.wiley.com/doi/full/10.1111/cgf.14791) | 2023 | Yan et al. | Yes | https://github.com/tellurion-kanata/sketch_colorizer |
 | [Diffusing Colors: Image Colorization with Text Guided Diffusion](https://arxiv.org/abs/2312.04145) | 2023 | Zabari et al. | Yes | None |
@@ -169,7 +170,7 @@ This project uses Python 3.11.
 
 ### Choosing the Dataset
 
-For this research project, [FairFace](https://github.com/dchen236/FairFace) was employed as the source of race/ethnicity-annotated facial images. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
+For this research project, [FairFace](https://github.com/dchen236/FairFace) (Kärkkäinen & Joo, 2021) was employed as the source of race/ethnicity-annotated facial images. This was because FairFace provides wide demographic coverage, including 9 distinct age groups, 7 race/ethnicity categories, and 2 gender groups, for 126 demographic subgroups. Additionally, the dataset is large enough that each individual age-gender-race subgroup contains at least 22 unique images, facilitating statistical analyses. Lastly, FairFace is openly accessible and does not require specific permissions, thereby facilitating the reproducibility and extension of this research project.
 
 ### Sampling Data
 
@@ -177,7 +178,7 @@ To facilitate consistency and comparability across demographic subgroups, we ran
 
 ### Downloading Models
 
-While many colorization models have been proposed over the years, a sizeable proportion of them lack open-source implementations. For this research project, we spent 30 minutes attempting to set up each of 37 different models, of which 5 were successfully integrated. Due to time constraints, 9 other models received no attempt. Issues included datasets and pre-trained models no longer being publicly available, deprecated packages no longer being offered by channels such as Conda, stringent GPU requirements, macOS incompatibilities with LuaJIT and Caffe, intractable user input requirements, and domain limitations.
+While many colorization models have been proposed over the years, a sizeable proportion of them lack open-source implementations. For this research project, we spent 30 minutes attempting to set up each of 37 different models, of which 5 were successfully integrated. These included [Color Transfer between Images](https://www.researchgate.net/publication/220518215_Color_Transfer_between_Images) (Reinhard et al., 2001), [Colorful Image Colorization](https://arxiv.org/abs/1603.08511) (Zhang et al., 2016), [Real-Time User-Guided Image Colorization with Learned Deep Priors](https://arxiv.org/abs/1705.02999) (Zhang et al., 2017), [DeOldify](https://github.com/jantic/DeOldify) (Antic, 2018), and [DDColor: Towards Photo-Realistic Image Colorization via Dual Decoders](https://arxiv.org/abs/2212.11613) (Kang et al., 2023). Due to time constraints, 9 other models received no attempt. Issues included datasets and pre-trained models no longer being publicly available, deprecated packages no longer being offered by channels such as Conda, stringent GPU requirements, macOS incompatibilities with LuaJIT and Caffe, intractable user input requirements, and domain limitations.
 
 ### Computing Metrics
 
@@ -251,7 +252,7 @@ Our last batch of exploratory data analysis for each metric was creating summary
 
 ### Multivariate Mixed-Effects Model
 
-These results are still computing.
+Fitting our reduced-scale multivariate mixed-effects model with 1000 draws and 2 chains took 3 hours. For our particular run, our randomly selected subset of metrics consisted of `NIQE`, `PSNR`, and `MUSIQ`.
 
 ## Limitations
 
@@ -260,3 +261,5 @@ A major simplifying assumption in our research project was that the image qualit
 ## Conclusion
 
 Analyzing how colorful bias has changed over time brings us closer to understanding how we might proactively create systems and algorithms to combat it. From diversity in image datasets, knowledge of historical and cultural context, and conceptions of palatable color schemes, deconstructing exact sources of bias remains an open challenge as detailed in [The Limits of AI Image Colorization: A Companion](https://samgoree.github.io/2021/04/21/colorization_companion.html) (Goree, 2021). While new formulations for bias metrics such as those introduced in [Bias in Automated Image Colorization: Metrics and Error Types](https://arxiv.org/pdf/2202.08143) (Stapel et al., 2022) further complicate this endeavor, the increased focus on these normative questions in the space of image colorization in recent years brings hope for fairer and more inclusive technological progress.
+
+## References
