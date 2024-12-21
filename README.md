@@ -2,11 +2,11 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
+- [Setup and Reproduction](#setup-and-reproduction)
 - [Literature Review](#literature-review)
   - [Race/Ethnicity-Annotated Face Datasets](#raceethnicity-annotated-face-datasets)
   - [Image Colorization Research](#image-colorization-research)
   - [Bias Metrics](#bias-metrics)
-- [Setup and Reproduction](#setup-and-reproduction)
 - [Methods](#methods)
   - [Choosing the Dataset](#choosing-the-dataset)
   - [Sampling Data](#sampling-data)
@@ -26,7 +26,19 @@
 
 ## Introduction
 
-In 2015, Google Photos faced widespread backlash after its [algorithms mislabeled](https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html) Black people as gorillas [1]. Three years later, the MIT Media Lab found that facial recognition systems had [error rates](https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/) as high as 34% for darker-skinned women compared to less than 1% for lighter-skinned men [2]. From image classification to facial recognition, computer vision is infamously flawed. In this research project, I investigated how these issues of fairness manifest in the age of generative AI. In particular, I explored the robustness of generative algorithms for image colorization with respect to skin tone bias. To accomplish this, I conducted a survey of race/ethnicity-annotated face datasets, compiled seminal algorithms for image colorization over the years, researched various formulations of bias metrics, and set up a code framework with statistical tests to rigorously compare the performance of coloring procedures. Through the above work, I sought to shed light on the trend in “colorful” bias, or bias in algorithmic colorization of images containing human skin tones, as seen through algorithms over time.
+In 2015, Google Photos faced widespread backlash after its [algorithms mislabeled](https://www.nytimes.com/2023/05/22/technology/ai-photo-labels-google-apple.html) Black people as gorillas [1]. Three years later, the MIT Media Lab found that facial recognition systems had [error rates](https://www.media.mit.edu/articles/study-finds-gender-and-skin-type-bias-in-commercial-artificial-intelligence-systems/) as high as 34% for darker-skinned women compared to less than 1% for lighter-skinned men [2]. From image classification to facial recognition, computer vision is infamously flawed. In this research project, I investigated how these issues of fairness manifest in the age of generative AI. In particular, I explored the robustness of generative algorithms for image colorization with respect to skin tone bias. To accomplish this, I conducted a survey of race/ethnicity-annotated face datasets, compiled seminal algorithms for image colorization over the years, researched various formulations of bias metrics, and set up a code framework with statistical tests to rigorously compare the performance of coloring procedures. Through the above work, I sought to shed light on the trend in “colorful” bias, or bias in algorithmic colorization of images containing human skin tones, as seen through algorithms over time. Code is available at https://github.com/drakedu/colorful-bias.
+
+## Setup and Reproduction
+
+This project uses Python 3.11.
+1. ```git clone https://github.com/drakedu/colorful-bias```
+2. ```pip install requirements.txt```
+3. ```python download_data.py```
+4. ```python sample_data.py```
+5. ```python download_models.py```
+6. ```python run_colorization.py```
+7. ```python compute_metrics.py```
+8. ```python analyze_colorization.py```
 
 ## Literature Review
 
@@ -153,18 +165,6 @@ Evaluation](https://www.vcl.fer.hr/papers_pdf/Comparison%20of%20Metrics%20for%20
 | Neural Image Assessment (NIMA) | 2018 | Perceptual | No |
 | Deep Bilinear Convolutional Neural Network (DBCNN) | 2020 | Perceptual | No |
 | Multi-Scale Image Quality Transformer (MUSIQ) | 2021 | Perceptual | No |
-
-## Setup and Reproduction
-
-This project uses Python 3.11.
-1. ```git clone https://github.com/drakedu/colorful-bias```
-2. ```pip install requirements.txt```
-3. ```python download_data.py```
-4. ```python sample_data.py```
-5. ```python download_models.py```
-6. ```python run_colorization.py```
-7. ```python compute_metrics.py```
-8. ```python analyze_colorization.py```
 
 ## Methods
 
