@@ -252,7 +252,66 @@ Our last batch of exploratory data analysis for each metric was creating summary
 
 ### Multivariate Mixed-Effects Model
 
-Fitting our reduced-scale multivariate mixed-effects model with 1000 draws and 2 chains took 3 hours. For our particular run, our randomly selected subset of metrics consisted of `NIQE`, `PSNR`, and `MUSIQ`. PyMC reported that the effective sample size per chain was smaller than 100 for some parameters, which was expected given our limited image dataset.
+Fitting our reduced-scale multivariate mixed-effects model with 1000 draws and 2 chains took 3 hours, after which we stored our trace in `multivariate_mixed_effects_model_trace.nc`. For our particular run, our randomly selected subset of metrics consisted of `NIQE`, `PSNR`, and `MUSIQ`. PyMC reported that the effective sample size per chain was smaller than 100 for some parameters, which was expected given our limited image dataset. From our resulting trace, we focused on our coefficients and covariances by creating 2 files: `multivariate_mixed_effects_model_cov.csv` and `multivariate_mixed_effects_model_betas.csv`. In our covariances file, we saw that out of the 3 pairs among the 3 metrics, 1 featured a large correlation. Specifically, we saw that NIQE and MUSIQ scores had a correlation of $-0.83$. This supports our model design as utilizing a multivariate approach allowed us to capture important cross-metric relationships that would have been missed by modeling each metric independently. We can also see this visually through a heatmap.
+
+![Covariances Heatmap](results/analyze_colorization/multivariate_mixed_effects_model_heatmap.png)
+
+Next, we look at our coefficients. `multivariate_mixed_effects_model_betas.csv` contains simple posterior means for each of them, provided below. We can see that the race fixed effects are varied, aligning with extant research on disparities in recolorization across demographic lines. Interestingly, we can see that the race fixed effects are larger than the model fixed effects by factor of between 2 to 5. One possible interpretation is that race appears to be a stronger driver of the quality metrics than the choice of model. Put differently, the variation associated with race tends to be larger than that associated with the specific recoloring models, which may indicate that demographic factors exert a more pronounced effect on these image-quality scores than do the technical differences among the models themselves. Lastly, race-model interaction effects are smaller than the model fixed effects by around a factor of 5 to 10. This suggests that the differences in reconstruction disparities by model are relatively small and may be overshadowed by the effect of race primarily and model secondarily.
+
+| |NIQE|PSNR|MUSIQ|
+|---|---|---|---|
+|Intercept|5.060283141282467|21.850344635675935|39.70699187448829|
+|Race[Black]|0.6000884931398262|2.8729247347165816|6.508977824654503|
+|Race[East Asian]|0.89516791264898|2.9067844201644286|4.440394467063581|
+|Race[Indian]|0.6441194785108671|3.23664116028621|5.905590066157679|
+|Race[Latino_Hispanic]|0.5923991827540878|2.708096299423645|7.002173510585236|
+|Race[Middle Eastern]|0.8192248728228303|4.153553727626101|5.059262468163551|
+|Race[Southeast Asian]|0.7520144510054835|2.8719166527651994|6.163102680079169|
+|Race[White]|0.6737104746614853|3.02270396364587|4.673038460568174|
+|Model[T.2016 Zhang]|0.12096468597355128|-2.185842000400737|2.0741168519737836|
+|Model[T.2017 Zhang]|0.1406425696650069|-0.7249624835733572|4.968757685170762|
+|Model[T.2018 Antic]|0.16071383874376968|-1.0130095083820558|4.215375696605231|
+|Model[T.2023 Kang]|-0.014479470939951292|-2.1110958541640974|3.667635560046014|
+|Race[T.East Asian]:Model[T.2016 Zhang]|-0.026632328761105207|0.06730397673207372|-0.05303037459719825|
+|Race[T.Indian]:Model[T.2016 Zhang]|-0.027666271388890395|-0.1773068304189067|0.42801228562198373|
+|Race[T.Latino_Hispanic]:Model[T.2016 Zhang]|-0.05636619494821846|0.651769642679341|0.41042514102181643|
+|Race[T.Middle Eastern]:Model[T.2016 Zhang]|-0.019168640720763536|-0.7286805098315275|0.25482313546395224|
+|Race[T.Southeast Asian]:Model[T.2016 Zhang]|-0.06022229162488717|-0.1021376179542452|0.21730789400097802|
+|Race[T.White]:Model[T.2016 Zhang]|-0.021289234730998717|0.28348184867276843|0.27677534577534124|
+|Race[T.East Asian]:Model[T.2017 Zhang]|-0.024293752199225836|0.014075138402236178|0.29072814853946816|
+|Race[T.Indian]:Model[T.2017 Zhang]|-0.0156207261153227|-0.23091603367074978|0.6715332575198492|
+|Race[T.Latino_Hispanic]:Model[T.2017 Zhang]|-0.04794233548699262|0.8080596602549058|0.9555123810862369|
+|Race[T.Middle Eastern]:Model[T.2017 Zhang]|-0.013689882994059129|-0.6318558898572451|0.5957012497134112|
+|Race[T.Southeast Asian]:Model[T.2017 Zhang]|-0.05274394533224977|-0.22398758621325937|0.601222626504729|
+|Race[T.White]:Model[T.2017 Zhang]|-0.02628761806426145|0.19330820191179926|0.4738587995877262|
+|Race[T.East Asian]:Model[T.2018 Antic]|-0.013329194269764309|0.0775599147063064|0.14367161091806552|
+|Race[T.Indian]:Model[T.2018 Antic]|-0.008908166407270516|-0.19874536570138449|0.6502335813948643|
+|Race[T.Latino_Hispanic]:Model[T.2018 Antic]|-0.02415333028980977|0.547549830056663|0.7608298847537859|
+|Race[T.Middle Eastern]:Model[T.2018 Antic]|-0.004811280857178096|-0.6190992015512617|0.3982356959591106|
+|Race[T.Southeast Asian]:Model[T.2018 Antic]|-0.04439672593345831|-0.1563903233116077|0.5476756808469783|
+|Race[T.White]:Model[T.2018 Antic]|-0.023450212052056052|0.12905259044665227|0.4707036436946758|
+|Race[T.East Asian]:Model[T.2023 Kang]|-0.022795537513443005|-0.07597139427979421|0.45028419574094836|
+|Race[T.Indian]:Model[T.2023 Kang]|0.0006812101399671387|-0.49907602205948925|0.3129529167253949|
+|Race[T.Latino_Hispanic]:Model[T.2023 Kang]|-0.029071424144081773|0.6700879515593461|0.8155858347253488|
+|Race[T.Middle Eastern]:Model[T.2023 Kang]|-0.02115481870964301|-0.8380218904563208|0.44282795290506344|
+|Race[T.Southeast Asian]:Model[T.2023 Kang]|-0.029819395203354318|-0.30058781974814647|0.547453352977678|
+|Race[T.White]:Model[T.2023 Kang]|-0.014168884235001126|0.04211331421446757|0.3444059407203242|
+
+Using these data, we can then reconstruct and visualize metric estimates by race and model.
+
+<table>
+  <tr>
+    <td><img src="results/analyze_colorization/multivariate_mixed_effects_model_niqe.png" alt="NIQE Estimates by Race-Model"></td>
+    <td><img src="results/analyze_colorization/multivariate_mixed_effects_model_psnr.png" alt="PSNR Estimates by Race-Model"></td>
+    <td><img src="results/analyze_colorization/multivariate_mixed_effects_model_musiq.png" alt="MUSIQ Estimates by Race-Model"></td>
+  </tr>
+</table>
+
+Lastly, we can interpret the significance of each term at the standard significance level by leveraging caterpillar plots and the concept of highest density intervals. We can see that for PSNR and MUSIQ, all model factors and all race factors are significant, providing evidence of disparities in reconstruction scores by demographics. For NIQE, we have 1 insigificant model factor and 3 insignificant race factors, seemingly due to the large uncertainty of these estimates. Moving on to race-model interactions, we see that NIQE and PSNR respectively have 5 and 6 significant terms, suggesting that there may be differences in reconstruction disparities by model. However, it should be noted that we do not see any significant terms for MUSIQ.
+
+![Caterpillar Plots](results/analyze_colorization/multivariate_mixed_effects_model_caterpillars.png)
+
+Overall, our results seem to reaffirm extant research on disparities in colorization by demographics and indicate that these disparities to some extent may differ by model, though further work is needed to verify these results.
 
 ## Limitations
 

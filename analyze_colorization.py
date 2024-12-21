@@ -81,9 +81,111 @@ def run_multivariate_mixed_effects_model(metric_dir, analysis_dir):
         # Decrease draws from 2831 and chains from 2831 // 139.
         trace = pm.sample(draws=1000, chains=2, target_accept=0.9)
 
+    trace_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_trace.nc")
+    az.to_netcdf(trace, trace_path)
+
     summary_df = az.summary(trace)
     summary_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_results.csv")
     summary_df.to_csv(summary_path)
+
+    # Extract predictor (column) names from the design matrix.
+    predictor_names = X.columns.tolist()
+
+    # Extract posterior means of beta coefficients.
+    beta_means = trace.posterior['beta'].mean(dim=["chain", "draw"]).values
+
+    # Create a DataFrame for better readability.
+    betas_df = pd.DataFrame(beta_means, index=predictor_names, columns=selected_metrics)
+    betas_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_betas.csv")
+    betas_df.to_csv(betas_path)
+
+    # 1. Extract posterior means of the Cholesky decomposition of the covariance/correlation matrix.
+    chol_cov_corr_means = trace.posterior['chol_cov_corr'].mean(dim=["chain", "draw"]).values
+
+    # 2. Convert the Cholesky factor to a DataFrame.
+    chol_cov_corr_df = pd.DataFrame(
+        chol_cov_corr_means,
+        index=selected_metrics,
+        columns=selected_metrics
+    )
+
+    # 3. Save the Cholesky decomposition DataFrame to a CSV file.
+    cov_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_cov.csv")
+    chol_cov_corr_df.to_csv(cov_path)
+
+    # 4. Create a heatmap of the Cholesky decomposition.
+    plt.figure()
+    sns.heatmap(chol_cov_corr_df, annot=True, fmt=".2f", cmap='coolwarm')
+    plt.title("Cholesky Decomposition of Covariance/Correlation Matrix")
+    heatmap_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_heatmap.png")
+    plt.savefig(heatmap_path)
+
+    # 1. Extract posterior samples of beta.
+    beta_samples = trace.posterior["beta"]
+
+    # For convenience, convert xarray to numpy.
+    beta_vals = beta_samples.stack(samples=["chain", "draw"]).transpose("samples", "beta_dim_0", "beta_dim_1").values
+
+    # Set probability mass for HDI.
+    hdi_prob = 0.95
+
+    # 2. Prepare figure with subplots (one per metric).
+    num_plots = num_metrics
+    fig, axes = plt.subplots(1, num_plots, figsize=(7*num_plots, 6), sharey=False)
+    if num_plots == 1:
+        axes = [axes]
+
+    # 3. Loop through each metric.
+    for m_idx in range(num_plots):
+        # Extract the posterior samples for the m_idx-th metric.
+        beta_m = beta_vals[:, :, m_idx]
+        
+        # Compute summary stats with ArviZ.
+        summary_m = az.summary(beta_samples[..., m_idx], hdi_prob=hdi_prob)  
+        
+        # Determine mean and HDI intervals.
+        betas_mean = summary_m["mean"].values
+        hdi_lower = summary_m["hdi_2.5%"].values
+        hdi_upper = summary_m["hdi_97.5%"].values
+        
+        P_ = len(betas_mean)
+        y_positions = np.arange(P_)
+        
+        ax = axes[m_idx]
+        
+        # 4. Plot each coefficient with a color based on whether CI includes 0.
+        for i in range(P_):
+            # If HDI includes 0, color green, else red.
+            if (hdi_lower[i] < 0) and (hdi_upper[i] > 0):
+                color_ = "green"
+            else:
+                color_ = "red"
+                
+            ax.errorbar(
+                betas_mean[i], 
+                y_positions[i],
+                xerr=[[betas_mean[i] - hdi_lower[i]], [hdi_upper[i] - betas_mean[i]]],
+                fmt='o',
+                color=color_,
+                ecolor='gray',
+                capsize=3
+            )
+        
+        # Reference line at 0.
+        ax.axvline(x=0, color="black", linestyle="--", linewidth=1)
+        
+        # Label y-axis with the design-matrix column names.
+        ax.set_yticks(y_positions)
+        ax.set_yticklabels(X.columns, rotation=0)
+        
+        # Set title.
+        ax.set_title(f"Posterior Betas for Metric: {selected_metrics[m_idx]}")
+        ax.set_xlabel("Coefficient Value")
+        ax.set_ylabel("Coefficient Name")
+
+    plt.tight_layout()
+    catepillar_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_caterpillars.png")
+    plt.savefig(catepillar_path)
 
 # Encode a row into a plot label based on the subset of columns included.
 def encode_attribute(row, subset):
