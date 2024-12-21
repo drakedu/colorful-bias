@@ -252,7 +252,7 @@ Our last batch of exploratory data analysis for each metric was creating summary
 
 ### Multivariate Mixed-Effects Model
 
-Fitting our reduced-scale multivariate mixed-effects model with 1000 draws and 2 chains took 3 hours. For our particular run, our randomly selected subset of metrics consisted of `NIQE`, `PSNR`, and `MUSIQ`.
+Fitting our reduced-scale multivariate mixed-effects model with 1000 draws and 2 chains took 3 hours. For our particular run, our randomly selected subset of metrics consisted of `NIQE`, `PSNR`, and `MUSIQ`. PyMC reported that the effective sample size per chain was smaller than 100 for some parameters, which was expected given our limited image dataset.
 
 ## Limitations
 
