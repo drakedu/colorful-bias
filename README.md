@@ -35,10 +35,11 @@ This project uses Python 3.11.
 2. ```pip install requirements.txt```
 3. ```python download_data.py```
 4. ```python sample_data.py```
-5. ```python download_models.py```
-6. ```python run_colorization.py```
-7. ```python compute_metrics.py```
-8. ```python analyze_colorization.py```
+5. ```python explore_data.py```
+6. ```python download_models.py```
+7. ```python run_colorization.py```
+8. ```python compute_metrics.py```
+9. ```python analyze_colorization.py```
 
 ## Literature Review
 
