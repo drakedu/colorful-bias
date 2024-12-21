@@ -42,7 +42,10 @@ def run_multivariate_mixed_effects_model(metric_dir, analysis_dir):
     for col in ['Dataset', 'Number', 'Age', 'Gender', 'Race', 'Model']:
         df_wide[col] = df_wide[col].astype('category')
 
-    Y = df_wide[metrics].values
+    # Randomly select 3 metrics from the full set.
+    selected_metrics = np.random.choice(metrics, size=3, replace=False)
+
+    Y = df_wide[selected_metrics].values
     M, num_metrics = Y.shape
 
     # Add subject indexing.
@@ -74,8 +77,9 @@ def run_multivariate_mixed_effects_model(metric_dir, analysis_dir):
         )
 
         y_obs = pm.MvNormal("y_obs", mu=mu, chol=chol, observed=Y)
-
-        trace = pm.sample(draws=2831, chains=2831//139, target_accept=0.9)
+        
+        # Decrease draws from 2831 and chains from 2831 // 139.
+        trace = pm.sample(draws=1000, chains=2, target_accept=0.9)
 
     summary_df = az.summary(trace)
     summary_path = os.path.join(analysis_dir, "multivariate_mixed_effects_model_results.csv")
